@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(222 47% 7%);
+  --color-foreground: hsl(210 40% 98%);
+  --color-card: hsl(222 47% 10%);
+  --color-card-foreground: hsl(210 40% 98%);
+  --color-popover: hsl(222 47% 10%);
+  --color-popover-foreground: hsl(210 40% 98%);
+  --color-primary: hsl(199 89% 48%);
+  --color-primary-foreground: hsl(222 47% 7%);
+  --color-secondary: hsl(217 32% 17%);
+  --color-secondary-foreground: hsl(210 40% 98%);
+  --color-muted: hsl(217 32% 14%);
+  --color-muted-foreground: hsl(215 20% 55%);
+  --color-accent: hsl(199 89% 48%);
+  --color-accent-foreground: hsl(222 47% 7%);
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(217 32% 17%);
+  --color-input: hsl(217 32% 17%);
+  --color-ring: hsl(199 89% 48%);
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+:root {
+  /* Brand colors */
+  --brand-cyan: hsl(199, 89%, 48%);
+  --brand-blue: hsl(221, 83%, 53%);
+  --brand-purple: hsl(262, 83%, 58%);
+  --brand-emerald: hsl(160, 84%, 39%);
+  --brand-amber: hsl(38, 92%, 50%);
+  --brand-rose: hsl(0, 84%, 60%);
+
+  /* Gap colors */
+  --gap-safe: hsl(160, 84%, 39%);
+  --gap-warn: hsl(38, 92%, 50%);
+  --gap-danger: hsl(0, 84%, 60%);
+}
+
+* {
+  border-color: var(--color-border);
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(222, 47%, 7%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(217, 32%, 25%);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(199, 89%, 48%);
+}
+
+/* Glow utilities */
+.glow-cyan {
+  box-shadow: 0 0 20px hsl(199, 89%, 48%, 0.3), 0 0 60px hsl(199, 89%, 48%, 0.1);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px hsl(160, 84%, 39%, 0.3), 0 0 60px hsl(160, 84%, 39%, 0.1);
+}
+
+.glow-rose {
+  box-shadow: 0 0 20px hsl(0, 84%, 60%, 0.3), 0 0 60px hsl(0, 84%, 60%, 0.1);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, hsl(199, 89%, 58%) 0%, hsl(221, 83%, 63%) 50%, hsl(262, 83%, 68%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ticker-positive {
+  color: hsl(160, 84%, 50%);
+}
+
+.ticker-negative {
+  color: hsl(0, 84%, 60%);
+}
+
+.ticker-neutral {
+  color: hsl(38, 92%, 50%);
+}
+
+/* Animated gradient border */
+.gradient-border {
+  position: relative;
+  background: hsl(222, 47%, 10%);
+  border-radius: 12px;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, hsl(199, 89%, 48%, 0.4), hsl(262, 83%, 58%, 0.4), hsl(199, 89%, 48%, 0.4));
+  background-size: 200% 200%;
+  animation: gradient-rotate 4s linear infinite;
+  z-index: -1;
+}
+
+@keyframes gradient-rotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Price flash animations */
+@keyframes flash-green {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: hsl(160, 84%, 39%, 0.2); }
+}
+
+@keyframes flash-red {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: hsl(0, 84%, 60%, 0.2); }
+}
+
+.flash-up { animation: flash-green 0.4s ease-out; }
+.flash-down { animation: flash-red 0.4s ease-out; }
+
+/* Pulse dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
