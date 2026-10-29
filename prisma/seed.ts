@@ -1,11 +1,12 @@
 /**
- * Database seed script for TrackingCrypt development
- * Run with: npx prisma db seed
+ * Database seed script for TrackingCrypt development & administrator bootstrapping
+ * Run with: npm run db:seed or npx prisma db seed
  *
  * Creates:
  * - Default exchanges (mock, binance placeholder)
  * - Common trading pairs
- * - A dev user account
+ * - Initial System Administrator account (configurable via ADMIN_EMAIL / ADMIN_INITIAL_PASSWORD)
+ * - Standard User account (user@trackingcrypt.com)
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -38,12 +39,12 @@ async function main() {
       displayName: 'Binance',
       baseApiUrl: 'https://api.binance.com',
       wsUrl: 'wss://stream.binance.com:9443',
-      isEnabled: false, // disabled until API key configured
+      isEnabled: false,
       isMock: false,
     },
   });
 
-  console.log('✅ Exchanges created:', mockExchange.name, binanceExchange.name);
+  console.log('✅ Exchanges verified:', mockExchange.name, binanceExchange.name);
 
   // ── Trading Pairs ────────────────────────────────────────────────────────────
   const pairs = [
@@ -69,19 +70,25 @@ async function main() {
     });
   }
 
-  console.log(`✅ ${pairs.length} trading pairs seeded`);
+  console.log(`✅ ${pairs.length} trading pairs verified`);
 
-  // ── Dev User ────────────────────────────────────────────────────────────────
-  const devPassword = await bcrypt.hash('DevPassword123!', 12);
+  // ── Initial Administrator Account ──────────────────────────────────────────
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@trackingcrypt.com').toLowerCase().trim();
+  const adminRawPassword = process.env.ADMIN_INITIAL_PASSWORD || 'Admin@123456';
+  const adminPasswordHash = await bcrypt.hash(adminRawPassword, 12);
 
-  const devUser = await prisma.user.upsert({
-    where: { email: 'dev@trackingcrypt.local' },
-    update: {},
-    create: {
-      email: 'dev@trackingcrypt.local',
-      name: 'Dev User',
-      passwordHash: devPassword,
+  const adminUser = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
       role: 'ADMIN',
+      isActive: true,
+    },
+    create: {
+      email: adminEmail,
+      name: 'System Administrator',
+      passwordHash: adminPasswordHash,
+      role: 'ADMIN',
+      isActive: true,
       userSettings: {
         create: {
           preferredCurrency: 'INR',
@@ -93,13 +100,44 @@ async function main() {
     },
   });
 
-  console.log(`✅ Dev user: ${devUser.email} (password: DevPassword123!)`);
+  console.log(`✅ Initial Administrator Account: ${adminUser.email} (Role: ADMIN)`);
+
+  // ── Standard User Account ──────────────────────────────────────────────────
+  const userEmail = 'user@trackingcrypt.com';
+  const userRawPassword = 'User@123456';
+  const userPasswordHash = await bcrypt.hash(userRawPassword, 12);
+
+  const regularUser = await prisma.user.upsert({
+    where: { email: userEmail },
+    update: {
+      role: 'USER',
+      isActive: true,
+    },
+    create: {
+      email: userEmail,
+      name: 'Standard Trader',
+      passwordHash: userPasswordHash,
+      role: 'USER',
+      isActive: true,
+      userSettings: {
+        create: {
+          preferredCurrency: 'INR',
+          enablePaperTrading: true,
+          enablePriceAlerts: true,
+          maximumAllowedGapPct: 2.0,
+        },
+      },
+    },
+  });
+
+  console.log(`✅ Standard User Account: ${regularUser.email} (Role: USER)`);
+
   console.log('');
   console.log('🚀 Database seeded successfully!');
   console.log('');
-  console.log('   Login: http://localhost:3000/auth/login');
-  console.log('   Email: dev@trackingcrypt.local');
-  console.log('   Pass:  DevPassword123!');
+  console.log('   User Login:  http://localhost:3000/signin');
+  console.log(`   Admin Login: http://localhost:3000/admin/login`);
+  console.log('');
 }
 
 main()

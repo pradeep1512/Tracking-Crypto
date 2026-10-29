@@ -26,11 +26,11 @@ export default function LandingPage() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/auth/login"
+          <Link href="/signin"
             className="text-muted-foreground hover:text-foreground transition-colors text-sm">
             Sign In
           </Link>
-          <Link href="/auth/register"
+          <Link href="/signup"
             className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 hover:scale-105"
             style={{ background: 'linear-gradient(135deg, hsl(199,89%,48%), hsl(221,83%,53%))' }}>
             Get Started
@@ -85,12 +85,12 @@ export default function LandingPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4">
-          <Link href="/auth/register"
+          <Link href="/signup"
             className="px-8 py-3.5 rounded-xl text-white font-semibold transition-all hover:scale-105 hover:shadow-xl glow-cyan"
             style={{ background: 'linear-gradient(135deg, hsl(199,89%,48%), hsl(221,83%,53%))' }}>
             Start Tracking Free
           </Link>
-          <Link href="/auth/login"
+          <Link href="/signin"
             className="px-8 py-3.5 rounded-xl border border-white/10 text-foreground font-semibold transition-all hover:border-white/30 hover:bg-white/5">
             Sign In to Dashboard
           </Link>
@@ -164,7 +164,7 @@ export default function LandingPage() {
           Always verify data with your exchange before making trading decisions.
         </p>
         <p className="text-muted-foreground/50 text-xs mt-4">
-          © {new Date().getFullYear()} TrackingCrypt. All rights reserved.
+          © 2026 TrackingCrypt. All rights reserved.
         </p>
       </footer>
     </main>

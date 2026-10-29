@@ -3,14 +3,49 @@ import { z } from 'zod';
 // ─── Auth Schemas ─────────────────────────────────────────────────────────────
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().trim().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
+  rememberMe: z.boolean().optional().default(false),
 });
+
+export const signInSchema = loginSchema;
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
+    name: z.string().trim().min(2, 'Full Name must be at least 2 characters'),
+    email: z.string().trim().email('Invalid email address'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Password must contain uppercase, lowercase, and a number'
+      ),
+    confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: 'You must accept the terms and conditions to create an account',
+    }),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export const signUpSchema = registerSchema;
+
+export const adminLoginSchema = z.object({
+  email: z.string().trim().email('Invalid admin email address'),
+  password: z.string().min(8, 'Admin password must be at least 8 characters'),
+  pin: z.string().optional(),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email('Invalid email address'),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(10, 'Invalid or missing reset token'),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')
@@ -24,6 +59,15 @@ export const registerSchema = z
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
+
+export type LoginInput = z.infer<typeof loginSchema>;
+export type SignInInput = z.infer<typeof signInSchema>;
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type SignUpInput = z.infer<typeof signUpSchema>;
+export type AdminLoginInput = z.infer<typeof adminLoginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
 
 // ─── Market / Trading Schemas ─────────────────────────────────────────────────
 
@@ -82,8 +126,7 @@ export const userSettingsSchema = z.object({
   defaultOrderQuantity: z.number().positive().optional(),
 });
 
-export type LoginInput = z.infer<typeof loginSchema>;
-export type RegisterInput = z.infer<typeof registerSchema>;
+
 export type PriceGapRequestInput = z.infer<typeof priceGapRequestSchema>;
 export type OrderSimulateInput = z.infer<typeof orderSimulateSchema>;
 export type OrderSubmitInput = z.infer<typeof orderSubmitSchema>;

@@ -1,52 +1,33 @@
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/database/prisma';
-import { registerSchema } from '@/lib/validation/schemas';
+import { NextRequest } from 'next/server';
+import { authService } from '@/lib/auth/auth-service';
 import { apiSuccess, apiError } from '@/lib/utils/api';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const parsed = registerSchema.safeParse(body);
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
 
-    if (!parsed.success) {
-      return apiError('Validation failed', 400, 'VALIDATION_ERROR', parsed.error.issues);
+    const result = await authService.registerUser(body, ip);
+
+    if (!result.success) {
+      const statusCode =
+        result.code === 'EMAIL_EXISTS'
+          ? 409
+          : result.code === 'RATE_LIMITED'
+          ? 429
+          : 400;
+      return apiError(result.error ?? 'Registration failed', statusCode, result.code, result.details);
     }
-
-    const { name, email, password } = parsed.data;
-
-    // Check existing user
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return apiError('An account with this email already exists.', 409, 'EMAIL_EXISTS');
-    }
-
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-        role: 'USER',
-        userSettings: {
-          create: {
-            preferredCurrency: 'INR',
-            enablePaperTrading: true,
-            enablePriceAlerts: true,
-            maximumAllowedGapPct: 2.0,
-          },
-        },
-      },
-      select: { id: true, email: true, name: true, createdAt: true },
-    });
 
     return apiSuccess(
-      { id: user.id, email: user.email, name: user.name },
+      {
+        user: result.data,
+        message: 'Account registered successfully. You may now sign in.',
+      },
       201
     );
   } catch (err) {
     console.error('[Register] Error:', err);
-    return apiError('Registration failed', 500, 'INTERNAL_ERROR');
+    return apiError('An unexpected server error occurred during registration', 500, 'INTERNAL_ERROR');
   }
 }

@@ -1,74 +1,43 @@
 import NextAuth from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/database/prisma';
 import { z } from 'zod';
+import { authConfig } from './auth.config';
+import { authService } from './auth-service';
 
-const loginSchema = z.object({
+const loginCredentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+  role: z.string().optional(),
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: 'jwt' },
-  pages: {
-    signIn: '/auth/login',
-    error: '/auth/error',
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as { role?: string }).role ?? 'USER';
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        (session.user as { role?: string }).role = token.role as string;
-      }
-      return session;
-    },
-  },
+  ...authConfig,
   providers: [
     CredentialsProvider({
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        role: { label: 'Role', type: 'text' },
       },
       async authorize(credentials) {
-        const parsed = loginSchema.safeParse(credentials);
+        const parsed = loginCredentialsSchema.safeParse(credentials);
         if (!parsed.success) return null;
 
-        const { email, password } = parsed.data;
+        const { email, password, role } = parsed.data;
+        const requiredRole = role === 'ADMIN' ? 'ADMIN' : undefined;
 
-        const user = await prisma.user.findUnique({
-          where: { email },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            passwordHash: true,
-            role: true,
-            image: true,
-          },
-        });
-
-        if (!user || !user.passwordHash) return null;
-
-        const isValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isValid) return null;
+        const result = await authService.authenticate(email, password, requiredRole);
+        if (!result.success || !result.data) {
+          return null;
+        }
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          role: user.role,
+          id: result.data.id,
+          email: result.data.email,
+          name: result.data.name,
+          role: result.data.role,
+          isActive: result.data.isActive,
         };
       },
     }),

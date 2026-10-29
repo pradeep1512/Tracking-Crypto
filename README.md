@@ -180,13 +180,55 @@ npm run benchmark
 
 ---
 
-## Security Architecture
+---
 
-- **Strict Least-Privilege Guardrail**: API keys with withdrawal permissions are unconditionally rejected at ingestion (`WITHDRAWAL_PERMISSION_REJECTED`).
-- **AES-256-GCM Key Vault**: Symmetric encryption with 12-byte IVs and 16-byte authentication tags; zero plaintext secrets stored.
-- **Safe Defaults**: Paper trading is strictly the default; live execution requires explicit opt-in and acknowledgement of risk.
-- **Pre-Trade Risk Engine**: Max order sizes, maximum slippage tolerance limits, and sliding window submission rate limiting.
-- **Emergency Kill Switch**: Instant global trade freeze triggerable via UI banner and `POST /api/trading/kill-switch`.
+## Security & Authentication Architecture
+
+TrackingCrypt features an enterprise-grade authentication and role-based authorization system built with Auth.js v5 (NextAuth), bcrypt password hashing, and server-side route protection.
+
+### 1. Authentication Routes & Interfaces
+
+| Route | Interface | Description | Access Policy |
+|---|---|---|---|
+| `/signup` | User Registration | Validates required fields, enforces password complexity (min 8 chars, uppercase, lowercase, number), requires Terms of Service acceptance, and securely assigns standard `USER` role. Prevents privilege escalation. | Public |
+| `/signin` | User Sign In | Authenticates against server-side credentials store with sliding-window rate limiting (max 5 attempts / 15 min). Supports "Remember Me" and preserves destination `callbackUrl`. | Public |
+| `/admin/login` | Administrator Terminal | Executive administrative authentication portal. Validates that the account holds elevated `ADMIN` privileges; rejects normal user accounts with explicit security warnings. | Public |
+| `/forgot-password` | Password Recovery | Generates single-use, cryptographically secure 32-byte tokens (stored as SHA-256 hashes with 20-minute expiration). Employs generic response messaging to prevent email enumeration. In development, provides a direct test simulation link. | Public |
+| `/reset-password` | Password Reset | Validates token authenticity, expiration, and single-use status. Enforces password strength rules, updates bcrypt hash, and immediately invalidates the consumed token. | Public |
+| `/dashboard` | User Dashboard | Real-time market overview, live order book, price gap analysis, user session profile, role badge (`USER`), and signout controls. | Authenticated Users |
+| `/admin/dashboard` | Administrator Dashboard | Comprehensive governance terminal: real-time telemetry (Total Users, Active Sessions, Admins, Security Logs), user governance table (activate/suspend access, promote/demote roles with self-protection guardrails), and full audit trail viewer. | `ADMIN` Role Only |
+
+### 2. Dual-Engine Storage Architecture
+
+To provide zero-friction developer ergonomics alongside production reliability:
+- **Primary Engine**: Prisma ORM with Microsoft SQL Server (`User`, `Account`, `Session`, `VerificationToken`, `PasswordResetToken`, `AuditLog`).
+- **Resilient Fallback Engine**: An in-memory/JSON store with circuit-breaker protection that automatically activates when the local SQL Server database is offline.
+- Pre-seeded with initial Administrator (`admin@trackingcrypt.com` / `Admin@123456`) and Demo User (`user@trackingcrypt.com` / `User@123456`), allowing instant development and testing out of the box.
+
+### 3. Initial Administrator Bootstrapping
+
+Configure initial administrator credentials in `.env`:
+
+```env
+ADMIN_EMAIL="admin@yourdomain.com"
+ADMIN_INITIAL_PASSWORD="YourStrongAdminPassword123!"
+```
+
+To seed the database with the initial administrator and market trading pairs:
+
+```bash
+npm run db:seed
+```
+
+### 4. Security Guardrails
+
+- **Zero Plaintext Passwords**: All credentials hashed with bcrypt (salt factor 12) before storage. Plaintext passwords never appear in logs or client bundles.
+- **Strict Role-Based Access Control**: Normal users cannot self-assign `ADMIN` privileges during registration. Server-side middleware and API route handlers verify role independently of UI visibility.
+- **Sliding-Window Rate Limiting**: In-memory rate limiting prevents credential stuffing (5 failed attempts per 15 minutes) and password reset abuse (3 requests per 15 minutes).
+- **Single-Use Token Invalidation**: Password reset tokens are hashed with SHA-256 and marked consumed immediately upon use, preventing replay attacks.
+- **Self-Preservation Protection**: Administrators are strictly prevented from deactivating or demoting their own accounts in the administrative dashboard.
+- **Audit Logging**: All security-relevant events (`USER_REGISTERED`, `USER_LOGIN_SUCCESS`, `ADMIN_LOGIN_SUCCESS`, `LOGIN_FAILED`, `PASSWORD_RESET_REQUESTED`, `PASSWORD_RESET_COMPLETED`, `USER_ROLE_CHANGED_BY_ADMIN`) are recorded with timestamps, IP addresses, and event metadata.
+
 
 ---
 

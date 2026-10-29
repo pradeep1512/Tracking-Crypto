@@ -22,20 +22,39 @@ model User {
   image         String?
   passwordHash  String?
   role          String    @default("USER") // USER | ADMIN
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts         Account[]
-  sessions         Session[]
-  priceGapEvents   PriceGapEvent[]
-  tradingOrders    TradingOrder[]
-  userSettings     UserSettings?
-  alerts           Alert[]
-  auditLogs        AuditLog[]
+  accounts            Account[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  priceGapEvents      PriceGapEvent[]
+  tradingOrders       TradingOrder[]
+  userSettings        UserSettings?
+  alerts              Alert[]
+  auditLogs           AuditLog[]
   exchangeCredentials ExchangeCredential[]
 
   @@map("Users")
 }
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("PasswordResetTokens")
+}
+
 
 model Account {
   id                String  @id @default(cuid())
