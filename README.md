@@ -253,3 +253,21 @@ To re-compile both PDF documents at any time:
 ```bash
 npm run docs:build
 ```
+
+---
+
+## Windows x64 Desktop Application & Installer
+
+TrackingCrypt includes an Electron packaging system that produces a genuine Windows 64-bit NSIS Setup Installer (`TrackingCrypt-Setup-x64.exe`):
+
+- **Architecture**: Next.js 16 standalone server running within an Electron Chromium frame.
+- **Installer**: `release/TrackingCrypt-Setup-x64.exe` with Desktop & Start Menu shortcut creation and Windows Settings uninstaller integration.
+- **Port Management**: Dynamic localhost binding with collision protection.
+- **Build Scripts**:
+  ```bash
+  npm run desktop:icons    # Generate high-DPI icon assets (.ico and .png)
+  npm run desktop:prepare  # Build Next.js standalone and copy static assets
+  npm run dist:win        # Build Windows x64 NSIS Setup Installer
+  ```
+
+For detailed setup, installation, and architectural documentation, see [README-WINDOWS-INSTALLER.md](file:///c:/Users/hp/Desktop/AI%20project/tracking-crypt/README-WINDOWS-INSTALLER.md).

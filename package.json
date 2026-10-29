@@ -2,6 +2,7 @@
   "name": "tracking-crypt",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,6 +11,12 @@
     "test": "tsx --test tests/unit/*.test.ts",
     "benchmark": "tsx scripts/benchmark-latency.ts",
     "docs:build": "node scripts/generate-comprehensive-developer-guide.js && node scripts/generate-comprehensive-user-manual.js",
+    "desktop:icons": "node scripts/generate-desktop-icon.js",
+    "desktop:prepare": "node scripts/prepare-standalone.js",
+    "desktop:build": "next build && node scripts/prepare-standalone.js && node scripts/generate-desktop-icon.js",
+    "desktop:dev": "electron .",
+    "dist:win": "npm run desktop:build && electron-builder --win --x64",
+    "dist": "npm run dist:win",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -63,11 +70,54 @@
     "@types/pdfkit": "^0.17.7",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "pdfkit": "^0.20.2",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
+  },
+  "build": {
+    "appId": "com.trackingcrypt.desktop",
+    "productName": "TrackingCrypt",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": ".next/standalone",
+        "to": "standalone",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/assets/icon.ico",
+      "artifactName": "TrackingCrypt-Setup-x64.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TrackingCrypt",
+      "installerIcon": "electron/assets/icon.ico",
+      "uninstallerIcon": "electron/assets/icon.ico",
+      "uninstallDisplayName": "TrackingCrypt"
+    }
   }
 }
