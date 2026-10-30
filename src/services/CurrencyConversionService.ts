@@ -246,6 +246,13 @@ export class CurrencyConversionService {
       latencyMs,
     };
   }
+
+  /**
+   * Return cached rate number synchronously or fallback
+   */
+  public getCurrentRateNumber(): number {
+    return this.cachedRate?.rate || this.fallbackRate || 88.0;
+  }
 }
 
 export const currencyConversionService = new CurrencyConversionService();

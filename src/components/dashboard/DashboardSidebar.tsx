@@ -20,11 +20,15 @@ import {
   PlayCircle,
   Calendar,
   Flame,
+  Wallet,
+  Landmark,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+  { href: '/dashboard/wallet', label: 'Wallet & Payments', icon: Wallet },
+  { href: '/dashboard/exchanges', label: 'Exchange Accounts', icon: Landmark },
   { href: '/dashboard/crypto', label: 'Crypto Markets', icon: Coins },
   { href: '/dashboard/mcx', label: 'MCX Commodities', icon: Flame },
   { href: '/dashboard/options', label: 'Options Trading', icon: Layers },

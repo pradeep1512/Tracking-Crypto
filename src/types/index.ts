@@ -474,3 +474,148 @@ export interface ExpiryCalendarItem {
   };
 }
 
+// ─── Wallet & Payment Gateway Types ──────────────────────────────────────────
+
+export type WalletTransactionType =
+  | 'DEPOSIT'
+  | 'WITHDRAWAL_REQUEST'
+  | 'TRADING_RESERVATION'
+  | 'TRADING_RELEASE'
+  | 'TRADING_SETTLEMENT'
+  | 'TRADING_FEE'
+  | 'REFUND'
+  | 'REVERSAL';
+
+export type WalletTransactionStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'SUCCESSFUL'
+  | 'FAILED'
+  | 'REFUNDED'
+  | 'REVERSED';
+
+export interface WalletTransactionItem {
+  id: string;
+  walletId: string;
+  transactionType: WalletTransactionType;
+  amount: number;
+  currency: string;
+  paymentMethod?: string;
+  gatewayReference?: string;
+  referenceId?: string;
+  status: WalletTransactionStatus;
+  description?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface WalletSummary {
+  walletBalance: number;
+  availableBalance: number;
+  reservedBalance: number;
+  totalDeposits: number;
+  totalTradingCharges: number;
+  currency: 'INR';
+  lastUpdatedAt: string;
+}
+
+export interface PaymentGatewayOrderResponse {
+  success: boolean;
+  orderId: string;
+  gatewayName: 'RAZORPAY' | 'STRIPE' | 'CASHFREE' | 'SANDBOX_SIMULATOR';
+  gatewayOrderId: string;
+  amount: number;
+  currency: string;
+  keyId?: string;
+  idempotencyKey: string;
+  message?: string;
+}
+
+export interface PaymentVerificationRequest {
+  orderId: string;
+  gatewayPaymentId: string;
+  gatewaySignature: string;
+  gatewayOrderId?: string;
+  paymentMethod?: string;
+}
+
+// ─── Exchange Balances & Actual Trading Types ─────────────────────────────────
+
+export interface ExchangeAssetBalance {
+  asset: string;
+  available: number;
+  reserved: number;
+  total: number;
+  inrValue?: number;
+}
+
+export interface ExchangeAccountBalanceDetails {
+  brokerId: string;
+  exchangeName: string;
+  displayName: string;
+  accountUserId: string;
+  availableBalance: number;
+  reservedBalance: number;
+  totalBalance: number;
+  nativeCurrency: string;
+  inrEquivalent: number;
+  supportedAssets: ExchangeAssetBalance[];
+  lastSyncAt: string;
+  status: 'CONNECTED' | 'DISCONNECTED' | 'ERROR' | 'RECONNECT_REQUIRED';
+  permissions: 'READ_ONLY' | 'TRADE';
+  isLiveTradingAuthorized: boolean;
+}
+
+export interface LiveOrderExecutionRequest {
+  brokerId: string;
+  tradingPair: string;
+  side: Side;
+  orderType: OrderType;
+  quantity?: number;
+  investmentAmountINR?: number;
+  limitPrice?: number;
+  stopLossPrice?: number;
+  targetPrice?: number;
+  portfolioId?: string;
+  clientOrderId?: string;
+}
+
+export interface OrderPreviewResult {
+  tradingPair: string;
+  side: Side;
+  orderType: OrderType;
+  quantity: number;
+  estimatedPrice: number;
+  estimatedOrderValueINR: number;
+  estimatedOrderValueNative: number;
+  nativeCurrency: string;
+  applicableFeesINR: number;
+  availableExchangeBalance: number;
+  estimatedRemainingBalance: number;
+  priceSlippagePct: number;
+  isExecutable: boolean;
+  warningMessage?: string;
+}
+
+export interface ExchangeOrderResult {
+  success: boolean;
+  orderId: string;
+  clientOrderId: string;
+  exchangeOrderId: string;
+  exchangeName: string;
+  tradingPair: string;
+  side: Side;
+  orderType: OrderType;
+  requestedQuantity: number;
+  filledQuantity: number;
+  averageExecutionPrice: number;
+  totalFees: number;
+  feeCurrency: string;
+  status: OrderStatus;
+  executionTimestamp: string;
+  rejectionReason?: string;
+  message: string;
+}
+
+
+

@@ -48,7 +48,8 @@ export function handleAuthRouting(req: NextRequest, sessionUser?: RouteSessionUs
     pathname.startsWith('/api/price-gap') ||
     pathname.startsWith('/api/mcx') ||
     pathname.startsWith('/api/options') ||
-    pathname.startsWith('/api/expiry');
+    pathname.startsWith('/api/expiry') ||
+    pathname === '/api/wallet/payment/webhook';
 
   if (isPublicApiRoute) {
     return NextResponse.next();

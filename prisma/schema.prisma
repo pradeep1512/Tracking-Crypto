@@ -38,6 +38,9 @@ model User {
   exchangeCredentials ExchangeCredential[]
   portfolios          Portfolio[]
   brokerConnections   BrokerConnection[]
+  wallets             Wallet[]
+  paymentOrders       PaymentOrder[]
+  financialLedgers    FinancialLedger[]
 
   @@map("Users")
 }
@@ -270,6 +273,7 @@ model TradingOrder {
   exchangeOrderId       String?
   clientOrderId         String?   @unique // idempotency key
   portfolioId           String?
+  brokerConnectionId    String?
   isPaperTrade          Boolean   @default(true)
   rejectionReason       String?
   cancelledAt           DateTime?
@@ -277,11 +281,12 @@ model TradingOrder {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  user        User        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  exchange    Exchange    @relation(fields: [exchangeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tradingPair TradingPair @relation(fields: [tradingPairId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  portfolio   Portfolio?  @relation(fields: [portfolioId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  fills       TradeFill[]
+  user             User              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  exchange         Exchange          @relation(fields: [exchangeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tradingPair      TradingPair       @relation(fields: [tradingPairId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portfolio        Portfolio?        @relation(fields: [portfolioId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  brokerConnection BrokerConnection? @relation(fields: [brokerConnectionId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  fills            TradeFill[]
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([portfolioId])
@@ -590,13 +595,18 @@ model BrokerConnection {
   keyIv                  String
   isConnected            Boolean   @default(true)
   isLiveTradingAuthorized Boolean  @default(false)
+  permissions            String    @default("TRADE") // "READ_ONLY" | "TRADE"
+  connectionStatus       String    @default("CONNECTED") // "CONNECTED" | "DISCONNECTED" | "ERROR" | "RECONNECT_REQUIRED"
   lastSyncAt             DateTime?
+  lastVerifiedAt         DateTime?
   supportedSegments      String    // Comma-separated: "EQUITY,COMMODITY,CRYPTO,FUTURES,OPTIONS"
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
-  user       User        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  portfolios Portfolio[]
+  user             User              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portfolios       Portfolio[]
+  exchangeBalances ExchangeBalance[]
+  tradingOrders    TradingOrder[]
 
   @@unique([userId, brokerType, accountUserId])
   @@map("BrokerConnections")
@@ -615,3 +625,109 @@ model ExpiryNotification {
   @@index([expiryDate])
   @@map("ExpiryNotifications")
 }
+
+// ─────────────────────────────────────────────────
+// WALLETS, PAYMENTS & FINANCIAL AUDIT LEDGER
+// ─────────────────────────────────────────────────
+
+model Wallet {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  currencyCode        String   @default("INR")
+  availableBalance    Decimal  @db.Decimal(30, 10) @default(0)
+  reservedBalance     Decimal  @db.Decimal(30, 10) @default(0)
+  totalDeposits       Decimal  @db.Decimal(30, 10) @default(0)
+  totalTradingCharges Decimal  @db.Decimal(30, 10) @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+  ledgers      FinancialLedger[]
+
+  @@index([userId])
+  @@map("Wallets")
+}
+
+model WalletTransaction {
+  id               String   @id @default(cuid())
+  walletId         String
+  transactionType  String   // "DEPOSIT" | "WITHDRAWAL_REQUEST" | "TRADING_RESERVATION" | "TRADING_RELEASE" | "TRADING_SETTLEMENT" | "TRADING_FEE" | "REFUND" | "REVERSAL"
+  amount           Decimal  @db.Decimal(30, 10)
+  currencyCode     String   @default("INR")
+  paymentMethod    String?  // "UPI" | "CARD" | "NET_BANKING" | "WALLET_INTERNAL" | "GATEWAY"
+  gatewayReference String?
+  referenceId      String?  // Gateway order id or trading order id
+  status           String   // "PENDING" | "PROCESSING" | "SUCCESSFUL" | "FAILED" | "REFUNDED" | "REVERSED"
+  description      String?
+  metadata         String?  @db.Text
+  createdAt        DateTime @default(now())
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt(sort: Desc)])
+  @@index([referenceId])
+  @@map("WalletTransactions")
+}
+
+model PaymentOrder {
+  id               String   @id @default(cuid())
+  userId           String
+  gatewayName      String   // "RAZORPAY" | "STRIPE" | "CASHFREE" | "SANDBOX_SIMULATOR"
+  gatewayOrderId   String?
+  gatewayPaymentId String?
+  gatewaySignature String?
+  amount           Decimal  @db.Decimal(30, 10)
+  currencyCode     String   @default("INR")
+  status           String   // "CREATED" | "PENDING" | "SUCCESSFUL" | "FAILED" | "EXPIRED"
+  idempotencyKey   String   @unique
+  metadata         String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId, status])
+  @@index([gatewayOrderId])
+  @@map("PaymentOrders")
+}
+
+model ExchangeBalance {
+  id                 String   @id @default(cuid())
+  brokerConnectionId String
+  asset              String   // "INR" | "USDT" | "BTC" | "ETH"
+  availableBalance   Decimal  @db.Decimal(30, 10) @default(0)
+  reservedBalance    Decimal  @db.Decimal(30, 10) @default(0)
+  totalBalance       Decimal  @db.Decimal(30, 10) @default(0)
+  inrEquivalent      Decimal? @db.Decimal(30, 10)
+  updatedAt          DateTime @updatedAt
+
+  brokerConnection BrokerConnection @relation(fields: [brokerConnectionId], references: [id], onDelete: Cascade)
+
+  @@unique([brokerConnectionId, asset])
+  @@index([brokerConnectionId])
+  @@map("ExchangeBalances")
+}
+
+model FinancialLedger {
+  id             String   @id @default(cuid())
+  userId         String
+  walletId       String?
+  entryType      String   // "CREDIT" | "DEBIT" | "RESERVE" | "RELEASE" | "FEE_DEDUCTION" | "REVERSAL"
+  amount         Decimal  @db.Decimal(30, 10)
+  currencyCode   String   @default("INR")
+  runningBalance Decimal  @db.Decimal(30, 10)
+  referenceType  String   // "PAYMENT_GATEWAY" | "TRADING_ORDER" | "REFUND" | "ADMIN_RECONCILIATION"
+  referenceId    String
+  idempotencyKey String   @unique
+  narration      String
+  createdAt      DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  wallet Wallet? @relation(fields: [walletId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([referenceId])
+  @@map("FinancialLedgers")
+}
+
