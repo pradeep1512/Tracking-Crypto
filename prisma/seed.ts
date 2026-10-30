@@ -132,6 +132,36 @@ async function main() {
 
   console.log(`✅ Standard User Account: ${regularUser.email} (Role: USER)`);
 
+  // ── Dev User Account ───────────────────────────────────────────────────────
+  const devEmail = 'dev@trackingcrypt.local';
+  const devRawPassword = 'DevPassword123!';
+  const devPasswordHash = await bcrypt.hash(devRawPassword, 12);
+
+  const devUser = await prisma.user.upsert({
+    where: { email: devEmail },
+    update: {
+      role: 'USER',
+      isActive: true,
+    },
+    create: {
+      email: devEmail,
+      name: 'Development User',
+      passwordHash: devPasswordHash,
+      role: 'USER',
+      isActive: true,
+      userSettings: {
+        create: {
+          preferredCurrency: 'INR',
+          enablePaperTrading: true,
+          enablePriceAlerts: true,
+          maximumAllowedGapPct: 2.0,
+        },
+      },
+    },
+  });
+
+  console.log(`✅ Dev User Account: ${devUser.email} (Role: USER)`);
+
   console.log('');
   console.log('🚀 Database seeded successfully!');
   console.log('');

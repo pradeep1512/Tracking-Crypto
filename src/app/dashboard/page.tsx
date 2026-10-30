@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import {
   TrendingUp, TrendingDown, Activity, Zap, Clock,
-  AlertTriangle, ArrowUpDown, BarChart3, RefreshCw
+  AlertTriangle, ArrowUpDown, BarChart3, RefreshCw,
+  Coins, Flame, Layers, Briefcase, Calendar, ChevronRight
 } from 'lucide-react';
 import type { Ticker, PriceGapAnalysis, LatencyStats } from '@/types';
 import { formatPrice, formatPercent, formatLatency, formatAge, getGapColor, getGapBgColor, cn } from '@/lib/utils';
@@ -335,15 +337,47 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Page title */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Market Overview</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Real-time price gap monitoring
-            <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs">
-              ⚠ Mock Data — Dev Mode
+            Real-time price gap monitoring • Crypto & MCX Commodities
+            <span className="ml-2 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-xs">
+              Multi-Asset Active
             </span>
           </p>
+        </div>
+
+        {/* Quick Asset Launchers */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+          <Link
+            href="/dashboard/crypto"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-semibold hover:bg-cyan-500/20 transition-colors whitespace-nowrap"
+          >
+            <Coins className="w-3.5 h-3.5" />
+            <span>Crypto</span>
+          </Link>
+          <Link
+            href="/dashboard/mcx"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-colors whitespace-nowrap"
+          >
+            <Flame className="w-3.5 h-3.5" />
+            <span>MCX Commodities</span>
+          </Link>
+          <Link
+            href="/dashboard/options"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold hover:bg-purple-500/20 transition-colors whitespace-nowrap"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Options Chain</span>
+          </Link>
+          <Link
+            href="/dashboard/portfolio"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold hover:bg-emerald-500/20 transition-colors whitespace-nowrap"
+          >
+            <Briefcase className="w-3.5 h-3.5" />
+            <span>My Portfolio</span>
+          </Link>
         </div>
       </div>
 

@@ -14,14 +14,25 @@ import {
   Zap,
   Shield,
   LogOut,
+  Coins,
+  Layers,
+  Briefcase,
+  PlayCircle,
+  Calendar,
+  Flame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/markets', label: 'Markets', icon: TrendingUp },
+  { href: '/dashboard/crypto', label: 'Crypto Markets', icon: Coins },
+  { href: '/dashboard/mcx', label: 'MCX Commodities', icon: Flame },
+  { href: '/dashboard/options', label: 'Options Trading', icon: Layers },
+  { href: '/dashboard/portfolio', label: 'My Portfolio', icon: Briefcase },
+  { href: '/dashboard/active-trading', label: 'Active Trading', icon: PlayCircle },
+  { href: '/dashboard/orders', label: 'Orders & Trade History', icon: ShoppingCart },
+  { href: '/dashboard/expiry-calendar', label: 'Expiry Calendar', icon: Calendar },
   { href: '/dashboard/price-gap', label: 'Price Gap', icon: Activity },
-  { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/alerts', label: 'Alerts', icon: Bell },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
@@ -101,19 +112,20 @@ export function DashboardSidebar() {
       </nav>
 
       {/* Footer / Logout */}
-      <div className="p-4 border-t border-white/5 space-y-3">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-          <span className="w-2 h-2 rounded-full bg-amber-400 pulse-dot" />
-          <span className="text-amber-400 text-xs font-medium">Dev Mode — Mock Data</span>
-        </div>
-
+      <div className="p-4 pb-6 border-t border-white/5 space-y-2.5">
         <button
-          onClick={() => signOut({ callbackUrl: '/signin' })}
-          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+          id="sidebar-signout-btn"
+          onClick={() => signOut({ callbackUrl: '/signin?logout=true' })}
+          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-semibold text-zinc-300 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20 cursor-pointer"
         >
-          <LogOut className="w-3.5 h-3.5" />
+          <LogOut className="w-4 h-4 text-red-400/80" />
           <span>Sign Out</span>
         </button>
+
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+          <span className="w-2 h-2 rounded-full bg-amber-400 pulse-dot flex-shrink-0" />
+          <span className="text-amber-400 text-[11px] font-medium tracking-tight truncate">Dev Mode — Mock Data</span>
+        </div>
       </div>
     </aside>
   );

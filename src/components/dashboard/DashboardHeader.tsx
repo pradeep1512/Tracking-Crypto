@@ -101,7 +101,7 @@ export function DashboardHeader() {
           </div>
 
           <button
-            onClick={() => signOut({ callbackUrl: '/signin' })}
+            onClick={() => signOut({ callbackUrl: '/signin?logout=true' })}
             id="header-logout-btn"
             title="Sign out of TrackingCrypt"
             className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-400 text-muted-foreground transition-colors"

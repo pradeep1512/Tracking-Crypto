@@ -1,9 +1,13 @@
 import { type NextRequest } from 'next/server';
 import { exchangeCredentialService } from '@/services/ExchangeCredentialService';
 import { apiSuccess, apiError, handleUnknownError } from '@/lib/utils/api';
+import { requireAuthUser } from '@/lib/auth/server-auth';
 
 export async function GET(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+
     const creds = await exchangeCredentialService.listCredentials();
     return apiSuccess(creds);
   } catch (err) {
@@ -13,6 +17,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+
     const body = await request.json();
     const { exchangeId, label, apiKey, apiSecret, permissions } = body as {
       exchangeId: string;
@@ -51,6 +58,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -58,8 +68,12 @@ export async function DELETE(request: NextRequest) {
       return apiError('Missing id query parameter', 400, 'INVALID_ID');
     }
 
-    await exchangeCredentialService.deleteCredential(id);
-    return apiSuccess({ id, deleted: true });
+    const deleted = await exchangeCredentialService.deleteCredential(id);
+    if (!deleted) {
+      return apiError(`Credential '${id}' not found`, 404, 'NOT_FOUND');
+    }
+
+    return apiSuccess({ deleted: true, id });
   } catch (err) {
     return handleUnknownError(err);
   }

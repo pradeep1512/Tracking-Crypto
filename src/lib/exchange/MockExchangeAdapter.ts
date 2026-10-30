@@ -14,12 +14,12 @@ import type { Ticker, OrderBook, OrderBookLevel } from '@/types';
 
 // Base prices for simulation (INR)
 const BASE_PRICES: Record<string, number> = {
-  BTCINR: 7_800_000,
-  ETHINR: 275_000,
+  BTCINR: 7_460_000,
+  ETHINR: 285_000,
   BNBINR: 54_000,
-  USDTINR: 84.5,
-  BTCUSDT: 93_000,
-  ETHUSDT: 3_280,
+  USDTINR: 95.0,
+  BTCUSDT: 78_500,
+  ETHUSDT: 3_000,
 };
 
 const SUPPORTED_SYMBOLS = Object.keys(BASE_PRICES);

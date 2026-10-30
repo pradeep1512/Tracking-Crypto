@@ -2,24 +2,25 @@
  * TrackingCrypt Desktop — Electron Main Process
  *
  * Capabilities:
- * - Automatically initializes and manages the Next.js production standalone server
+ * - Automatically initializes and manages the Next.js production standalone server via utilityProcess
  * - Dynamically binds to an open local port (127.0.0.1)
  * - Strict security: contextIsolation, disabled nodeIntegration, external link protection
  * - Native Windows single-instance lock and clean child process shutdown
+ * - Real-time stderr/stdout server log capture to userData directory
  */
 
-const { app, BrowserWindow, shell, dialog } = require('electron');
+const { app, BrowserWindow, shell, dialog, utilityProcess } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const net = require('net');
 const http = require('http');
-const { fork } = require('child_process');
 
 let mainWindow = null;
 let serverProcess = null;
 let serverPort = null;
-
-const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
+let serverExitedPrematurely = false;
+let serverExitCode = null;
+let lastStderr = '';
 
 // Enforce single application instance on Windows
 const gotTheLock = app.requestSingleInstanceLock();
@@ -52,13 +53,13 @@ function getAvailablePort(preferredPort = 3000) {
 }
 
 /**
- * Locate the standalone server.js bundle in dev or packaged resources
+ * Locate the standalone server.js bundle in packaged resources or dev
  */
 function getStandaloneServerPath() {
   const possiblePaths = [
-    path.join(__dirname, '..', '.next', 'standalone', 'server.js'),
-    path.join(app.getAppPath(), '.next', 'standalone', 'server.js'),
     path.join(process.resourcesPath, 'standalone', 'server.js'),
+    path.join(app.getAppPath(), '.next', 'standalone', 'server.js'),
+    path.join(__dirname, '..', '.next', 'standalone', 'server.js'),
     path.join(process.resourcesPath, '.next', 'standalone', 'server.js'),
     path.join(process.resourcesPath, 'app', '.next', 'standalone', 'server.js'),
   ];
@@ -74,17 +75,34 @@ function getStandaloneServerPath() {
 /**
  * Poll localhost URL until Next.js HTTP server is ready to accept requests
  */
-function waitForServerReady(port, maxRetries = 60, intervalMs = 300) {
+function waitForServerReady(port, maxRetries = 60, intervalMs = 250) {
   return new Promise((resolve, reject) => {
     let retries = 0;
     const check = () => {
+      if (serverExitedPrematurely) {
+        return reject(
+          new Error(
+            `Next.js server process exited prematurely with code ${serverExitCode}.\n\nLog details:\n${
+              lastStderr.slice(-400) || 'Check server.log for full details.'
+            }`
+          )
+        );
+      }
+
       const req = http.get(`http://127.0.0.1:${port}`, (res) => {
         resolve();
       });
+
       req.on('error', () => {
         retries++;
         if (retries >= maxRetries) {
-          reject(new Error(`Next.js server failed to respond on port ${port} after ${maxRetries} attempts.`));
+          reject(
+            new Error(
+              `Next.js server failed to respond on port ${port} after ${maxRetries} attempts.\n\n${
+                lastStderr ? 'Last error: ' + lastStderr.slice(-300) : ''
+              }`
+            )
+          );
         } else {
           setTimeout(check, intervalMs);
         }
@@ -96,46 +114,68 @@ function waitForServerReady(port, maxRetries = 60, intervalMs = 300) {
 }
 
 /**
- * Start the Next.js server in the background
+ * Start the Next.js standalone server using Electron's native utilityProcess
  */
 async function startServer() {
   serverPort = await getAvailablePort(3000);
   const serverPath = getStandaloneServerPath();
 
   if (!serverPath) {
-    throw new Error('Could not locate Next.js standalone server bundle (.next/standalone/server.js).');
+    throw new Error('Could not locate Next.js standalone server bundle (standalone/server.js).');
   }
 
-  console.log(`[Electron] Starting Next.js standalone server at port ${serverPort}...`);
-  console.log(`[Electron] Bundle path: ${serverPath}`);
+  const logDir = app.getPath('userData');
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  const logFilePath = path.join(logDir, 'server.log');
+  const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 
-  // Inherit environment variables with local overrides
+  logStream.write(`\n--- TrackingCrypt Starting at ${new Date().toISOString()} ---\n`);
+  logStream.write(`Port: ${serverPort}, Server Path: ${serverPath}\n`);
+
+  // Environment for the embedded Next.js server
   const env = {
     ...process.env,
     PORT: String(serverPort),
     HOSTNAME: '127.0.0.1',
     NODE_ENV: 'production',
     AUTH_TRUST_HOST: 'true',
-    ELECTRON_RUN_AS_NODE: '1',
   };
 
-  serverProcess = fork(serverPath, [], {
+  serverExitedPrematurely = false;
+  serverExitCode = null;
+  lastStderr = '';
+
+  serverProcess = utilityProcess.fork(serverPath, [], {
     env,
     cwd: path.dirname(serverPath),
-    stdio: 'ignore', // prevent terminal popups on Windows
-    windowsHide: true,
+    stdio: 'pipe',
+    serviceName: 'TrackingCrypt-NextServer',
   });
 
-  serverProcess.on('error', (err) => {
-    console.error('[Electron] Server process error:', err);
-  });
+  if (serverProcess.stdout) {
+    serverProcess.stdout.on('data', (chunk) => {
+      logStream.write(chunk);
+    });
+  }
 
-  serverProcess.on('exit', (code, signal) => {
-    console.log(`[Electron] Server process exited (code: ${code}, signal: ${signal})`);
+  if (serverProcess.stderr) {
+    serverProcess.stderr.on('data', (chunk) => {
+      const text = chunk.toString();
+      lastStderr += text;
+      logStream.write(chunk);
+    });
+  }
+
+  serverProcess.on('exit', (code) => {
+    serverExitedPrematurely = true;
+    serverExitCode = code;
+    logStream.write(`[Server Exit] Process exited with code ${code}\n`);
   });
 
   await waitForServerReady(serverPort);
-  console.log(`[Electron] Next.js server successfully ready on http://127.0.0.1:${serverPort}`);
+  logStream.write(`[Server Ready] Successfully bound to http://127.0.0.1:${serverPort}\n`);
 }
 
 /**
@@ -190,21 +230,14 @@ function createMainWindow() {
 
   const targetUrl = `http://127.0.0.1:${serverPort}`;
   mainWindow.loadURL(targetUrl).catch((err) => {
-    console.error('[Electron] Failed to load URL:', err);
     mainWindow.loadFile(path.join(__dirname, 'error.html'));
   });
 }
 
 function cleanUpServer() {
   if (serverProcess) {
-    console.log('[Electron] Shutting down Next.js server process...');
     try {
-      serverProcess.kill('SIGTERM');
-      setTimeout(() => {
-        if (serverProcess && !serverProcess.killed) {
-          serverProcess.kill('SIGKILL');
-        }
-      }, 1000);
+      serverProcess.kill();
     } catch {
       // Ignored on exit
     }
@@ -217,10 +250,12 @@ app.whenReady().then(async () => {
     await startServer();
     createMainWindow();
   } catch (err) {
-    console.error('[Electron] Startup failure:', err);
     dialog.showErrorBox(
       'TrackingCrypt Startup Error',
-      `Failed to initialize the local TrackingCrypt services:\n\n${err.message}\n\nPlease check your installation.`
+      `Failed to initialize the local TrackingCrypt services:\n\n${err.message}\n\nLog location: ${path.join(
+        app.getPath('userData'),
+        'server.log'
+      )}`
     );
     app.quit();
   }

@@ -203,7 +203,7 @@ TrackingCrypt features an enterprise-grade authentication and role-based authori
 To provide zero-friction developer ergonomics alongside production reliability:
 - **Primary Engine**: Prisma ORM with Microsoft SQL Server (`User`, `Account`, `Session`, `VerificationToken`, `PasswordResetToken`, `AuditLog`).
 - **Resilient Fallback Engine**: An in-memory/JSON store with circuit-breaker protection that automatically activates when the local SQL Server database is offline.
-- Pre-seeded with initial Administrator (`admin@trackingcrypt.com` / `Admin@123456`) and Demo User (`user@trackingcrypt.com` / `User@123456`), allowing instant development and testing out of the box.
+- Pre-seeded with initial Administrator (`admin@trackingcrypt.com` / `Admin@123456`), Developer User (`dev@trackingcrypt.local` / `DevPassword123!`), and Trader User (`user@trackingcrypt.com` / `User@123456`), allowing instant development and testing out of the box.
 
 ### 3. Initial Administrator Bootstrapping
 

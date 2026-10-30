@@ -1,12 +1,17 @@
 import { type NextRequest } from 'next/server';
 import { alertService } from '@/services/AlertService';
 import { apiSuccess, apiError, handleUnknownError } from '@/lib/utils/api';
+import { requireAuthUser } from '@/lib/auth/server-auth';
 import type { AlertType, AlertSeverity } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+    const { user } = authCheck;
+
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId') ?? undefined;
+    const userId = searchParams.get('userId') ?? user.id;
 
     const alerts = await alertService.getAlerts(userId);
     const unreadCount = alerts.filter((a) => !a.isRead).length;
@@ -22,6 +27,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+    const { user } = authCheck;
+
     const body = await request.json();
     const { alertType, symbol, thresholdValue, severity, cooldownSeconds, message } = body as {
       alertType: AlertType;
@@ -37,6 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const created = await alertService.createAlert({
+      userId: user.id,
       alertType,
       symbol,
       thresholdValue,
@@ -53,6 +63,9 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+
     const body = await request.json();
     const { id, isRead, isEnabled, markAllRead } = body as {
       id?: string;
@@ -86,6 +99,9 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

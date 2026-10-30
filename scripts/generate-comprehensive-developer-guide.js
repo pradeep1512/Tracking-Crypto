@@ -796,7 +796,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   engine.table(
     ['Variable Name', 'Required', 'Description & Safe Example'],
     [
-      ['DATABASE_URL', 'Yes', 'SQL Server connection string (e.g., sqlserver://localhost:1433;...)'],
+      ['DATABASE_URL', 'Yes', 'SQL Server connection string (e.g., sqlserver://localhost\\MSSQLLocalDB;...)'],
       ['NEXTAUTH_SECRET', 'Yes', 'Random 32-byte secret for encrypting JWT session cookies.'],
       ['NEXTAUTH_URL', 'Yes', 'Canonical application URL (e.g., http://localhost:3000).'],
       ['CREDENTIAL_ENCRYPTION_KEY', 'Yes', '64-hex-character (256-bit) AES key for the credential vault.'],

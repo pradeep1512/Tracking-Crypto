@@ -36,6 +36,8 @@ model User {
   alerts              Alert[]
   auditLogs           AuditLog[]
   exchangeCredentials ExchangeCredential[]
+  portfolios          Portfolio[]
+  brokerConnections   BrokerConnection[]
 
   @@map("Users")
 }
@@ -267,6 +269,7 @@ model TradingOrder {
   status                String    // "PENDING" | "OPEN" | "PARTIALLY_FILLED" | "FILLED" | "CANCELLED" | "REJECTED" | "EXPIRED"
   exchangeOrderId       String?
   clientOrderId         String?   @unique // idempotency key
+  portfolioId           String?
   isPaperTrade          Boolean   @default(true)
   rejectionReason       String?
   cancelledAt           DateTime?
@@ -277,9 +280,11 @@ model TradingOrder {
   user        User        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   exchange    Exchange    @relation(fields: [exchangeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tradingPair TradingPair @relation(fields: [tradingPairId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portfolio   Portfolio?  @relation(fields: [portfolioId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   fills       TradeFill[]
 
   @@index([userId, createdAt(sort: Desc)])
+  @@index([portfolioId])
   @@index([status, createdAt(sort: Desc)])
   @@map("TradingOrders")
 }
@@ -393,4 +398,220 @@ model AuditLog {
   @@index([userId, createdAt(sort: Desc)])
   @@index([action, createdAt(sort: Desc)])
   @@map("AuditLogs")
+}
+
+// ─────────────────────────────────────────────────
+// MULTI-ASSET TRADING PLATFORM MODELS
+// ─────────────────────────────────────────────────
+
+model Instrument {
+  id              String   @id @default(cuid())
+  symbol          String   @unique // e.g., "BTC", "GOLD", "SILVER", "CRUDEOIL"
+  name            String
+  category        String   // "CRYPTO" | "MCX_COMMODITY" | "OPTION"
+  subCategory     String?  // "PRECIOUS_METALS" | "ENERGY" | "BASE_METALS" | "SPOT_CRYPTO"
+  currency        String   @default("INR") // "INR" | "USDT"
+  tickSize        Decimal  @db.Decimal(30, 10)
+  lotSize         Decimal  @db.Decimal(30, 10) @default(1)
+  unit            String   // "1 kg", "100 g", "BBL", "mmBtu", "coin"
+  tradingHours    String?  // e.g., "09:00 - 23:30 IST"
+  isEnabled       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  commodityContracts CommodityContract[]
+  optionContracts    OptionContract[]
+  portfolioAssets    PortfolioAsset[]
+  portfolioPositions PortfolioPosition[]
+
+  @@map("Instruments")
+}
+
+model CommodityContract {
+  id                 String   @id @default(cuid())
+  instrumentId       String
+  contractSymbol     String   @unique // e.g. "GOLD26AUGFUT", "SILVER26SEPFUT"
+  contractName       String
+  category           String   // "PRECIOUS_METALS" | "ENERGY" | "BASE_METALS"
+  expiryDate         DateTime
+  tenderStartDate    DateTime?
+  deliveryType       String   @default("PHYSICAL") // "PHYSICAL" | "CASH"
+  lotSize            Decimal  @db.Decimal(30, 10)
+  tickSize           Decimal  @db.Decimal(30, 10)
+  openInterest       Decimal  @db.Decimal(30, 10) @default(0)
+  lastTradedPrice    Decimal  @db.Decimal(30, 10)
+  isLive             Boolean  @default(true)
+  createdAt          DateTime @default(now())
+
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@index([category, expiryDate])
+  @@map("CommodityContracts")
+}
+
+model OptionContract {
+  id                 String   @id @default(cuid())
+  instrumentId       String
+  symbol             String   @unique // e.g., "BTC-30OCT26-85000-CE"
+  underlying         String
+  category           String   // "CRYPTO" | "MCX_COMMODITY"
+  optionType         String   // "CE" | "PE"
+  strikePrice        Decimal  @db.Decimal(30, 10)
+  expiryDate         DateTime
+  lotSize            Decimal  @db.Decimal(30, 10) @default(1)
+  impliedVolatility  Decimal  @db.Decimal(10, 6) @default(0)
+  lastTradedPrice    Decimal  @db.Decimal(30, 10) @default(0)
+  bestBid            Decimal  @db.Decimal(30, 10) @default(0)
+  bestAsk            Decimal  @db.Decimal(30, 10) @default(0)
+  volume             Decimal  @db.Decimal(30, 10) @default(0)
+  openInterest       Decimal  @db.Decimal(30, 10) @default(0)
+  isLive             Boolean  @default(true)
+  createdAt          DateTime @default(now())
+
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@index([underlying, expiryDate, strikePrice])
+  @@map("OptionContracts")
+}
+
+model Portfolio {
+  id                  String   @id @default(cuid())
+  userId              String
+  name                String
+  description         String?
+  category            String   // "CRYPTO" | "GOLD" | "SILVER" | "MCX_COMMODITY" | "OPTIONS_TRADING" | "MULTI_ASSET" | "CUSTOM"
+  currency            String   @default("INR") // "INR" | "USDT"
+  initialCapital      Decimal  @db.Decimal(30, 10)
+  totalCapital        Decimal  @db.Decimal(30, 10)
+  allocatedCapital    Decimal  @db.Decimal(30, 10) @default(0)
+  availableBalance    Decimal  @db.Decimal(30, 10)
+  investedAmount      Decimal  @db.Decimal(30, 10) @default(0)
+  currentMarketValue  Decimal  @db.Decimal(30, 10) @default(0)
+  realizedPnL         Decimal  @db.Decimal(30, 10) @default(0)
+  unrealizedPnL       Decimal  @db.Decimal(30, 10) @default(0)
+  totalCharges        Decimal  @db.Decimal(30, 10) @default(0)
+  maxInvestmentLimit  Decimal  @db.Decimal(30, 10)
+  riskLimitPercentage Decimal  @db.Decimal(10, 6) @default(5.0)
+  maxDailyLoss        Decimal  @db.Decimal(30, 10) @default(10000)
+  reviewDate          DateTime?
+  status              String   @default("READY") // "READY" | "RUNNING" | "PAUSED" | "STOPPING" | "STOPPED" | "EXPIRED" | "ERROR"
+  executionMode       String   @default("PAPER") // "PAPER" | "LIVE"
+  connectedBrokerId   String?
+  isArchived          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  brokerConnection BrokerConnection?  @relation(fields: [connectedBrokerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assets           PortfolioAsset[]
+  positions        PortfolioPosition[]
+  orders           TradingOrder[]
+  history          PortfolioHistory[]
+
+  @@index([userId, status])
+  @@map("Portfolios")
+}
+
+model PortfolioAsset {
+  id                  String   @id @default(cuid())
+  portfolioId         String
+  instrumentId        String
+  targetAllocationPct Decimal  @db.Decimal(10, 6) // e.g. 25.0%
+  currentValue        Decimal  @db.Decimal(30, 10) @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  portfolio  Portfolio  @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([portfolioId, instrumentId])
+  @@map("PortfolioAssets")
+}
+
+model PortfolioPosition {
+  id                 String   @id @default(cuid())
+  portfolioId        String
+  instrumentId       String
+  symbol             String
+  name               String
+  category           String   // "CRYPTO" | "MCX_COMMODITY" | "OPTION"
+  side               String   // "BUY" | "SELL"
+  optionType         String?  // "CE" | "PE"
+  strikePrice        Decimal? @db.Decimal(30, 10)
+  expiryDate         DateTime?
+  quantity           Decimal  @db.Decimal(30, 10)
+  entryPrice         Decimal  @db.Decimal(30, 10)
+  currentPrice       Decimal  @db.Decimal(30, 10)
+  investedAmount     Decimal  @db.Decimal(30, 10)
+  currentMarketValue Decimal  @db.Decimal(30, 10)
+  unrealizedPnL      Decimal  @db.Decimal(30, 10)
+  unrealizedPnLPct   Decimal  @db.Decimal(10, 6)
+  realizedPnL        Decimal  @db.Decimal(30, 10) @default(0)
+  stopLossPrice      Decimal? @db.Decimal(30, 10)
+  targetPrice        Decimal? @db.Decimal(30, 10)
+  totalCharges       Decimal  @db.Decimal(30, 10) @default(0)
+  status             String   @default("OPEN") // "OPEN" | "CLOSED"
+  openedAt           DateTime @default(now())
+  closedAt           DateTime?
+  lastUpdatedAt      DateTime @updatedAt
+
+  portfolio  Portfolio  @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([portfolioId, status])
+  @@map("PortfolioPositions")
+}
+
+model PortfolioHistory {
+  id                 String   @id @default(cuid())
+  portfolioId        String
+  timestamp          DateTime @default(now())
+  totalCapital       Decimal  @db.Decimal(30, 10)
+  investedAmount     Decimal  @db.Decimal(30, 10)
+  realizedPnL        Decimal  @db.Decimal(30, 10)
+  unrealizedPnL      Decimal  @db.Decimal(30, 10)
+  totalReturnPct     Decimal  @db.Decimal(10, 6)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, timestamp(sort: Desc)])
+  @@map("PortfolioHistory")
+}
+
+model BrokerConnection {
+  id                     String    @id @default(cuid())
+  userId                 String
+  brokerType             String    // "ZERODHA" | "ANGEL_ONE" | "UPSTOX" | "DHAN" | "BINANCE" | "COINDCX" | "PAPER_SIMULATOR"
+  displayName            String
+  accountUserId          String
+  encryptedApiKey        String    @db.Text
+  encryptedApiSecret     String    @db.Text
+  encryptedAccessToken   String?   @db.Text
+  keyIv                  String
+  isConnected            Boolean   @default(true)
+  isLiveTradingAuthorized Boolean  @default(false)
+  lastSyncAt             DateTime?
+  supportedSegments      String    // Comma-separated: "EQUITY,COMMODITY,CRYPTO,FUTURES,OPTIONS"
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portfolios Portfolio[]
+
+  @@unique([userId, brokerType, accountUserId])
+  @@map("BrokerConnections")
+}
+
+model ExpiryNotification {
+  id              String   @id @default(cuid())
+  symbol          String
+  contractName    String
+  expiryDate      DateTime
+  noticeType      String   // "DAYS_7" | "DAYS_3" | "DAYS_1" | "EXPIRY_DAY" | "TENDER_NOTICE"
+  message         String
+  isRead          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([expiryDate])
+  @@map("ExpiryNotifications")
 }

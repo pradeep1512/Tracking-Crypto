@@ -35,6 +35,18 @@ export interface StoredAuditLog {
   createdAt: Date;
 }
 
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined') {
+    if (typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    if (typeof (crypto as any).randomBytes === 'function') {
+      return (crypto as any).randomBytes(16).toString('hex');
+    }
+  }
+  return 'id_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+}
+
 /**
  * Robust User Repository with dual-mode support:
  * 1. Primary: Prisma ORM with configured database (SQL Server / PostgreSQL / etc.)
@@ -52,6 +64,32 @@ class AuthRepository {
 
   constructor() {
     this.initializeDevStore();
+    this.probeDatabase();
+  }
+
+  private async withTimeout<T>(promise: Promise<T>, ms: number = 800): Promise<T> {
+    let timer: NodeJS.Timeout;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Prisma database query timeout')), ms);
+    });
+    try {
+      return await Promise.race([promise, timeoutPromise]);
+    } finally {
+      clearTimeout(timer!);
+    }
+  }
+
+  private async probeDatabase(): Promise<void> {
+    if (process.env.NODE_ENV === 'test') {
+      this.isDbAvailable = false;
+      return;
+    }
+    try {
+      await this.withTimeout(prisma.$queryRaw`SELECT 1`, 800);
+      this.isDbAvailable = true;
+    } catch {
+      this.handleDbFailure();
+    }
   }
 
   private canTryDb(): boolean {
@@ -65,7 +103,7 @@ class AuthRepository {
 
   private handleDbFailure(): void {
     this.isDbAvailable = false;
-    this.nextDbRetry = Date.now() + 30000; // Back off for 30s before next probe
+    this.nextDbRetry = Date.now() + 60000; // Back off for 60s before next probe
   }
 
   private initializeDevStore(): void {
@@ -80,6 +118,11 @@ class AuthRepository {
     const userPassword = 'User@123456';
     const userSalt = bcrypt.genSaltSync(12);
     const userHash = bcrypt.hashSync(userPassword, userSalt);
+
+    const devEmail = 'dev@trackingcrypt.local';
+    const devPassword = 'DevPassword123!';
+    const devSalt = bcrypt.genSaltSync(12);
+    const devHash = bcrypt.hashSync(devPassword, devSalt);
 
     const now = new Date();
 
@@ -107,11 +150,24 @@ class AuthRepository {
       updatedAt: now,
     };
 
+    const devUser: StoredUser = {
+      id: 'user-tc-dev-002',
+      name: 'Development Trader',
+      email: devEmail,
+      passwordHash: devHash,
+      role: 'ADMIN',
+      isActive: true,
+      lastLoginAt: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
     this.memoryUsers.set(adminUser.email, adminUser);
     this.memoryUsers.set(regularUser.email, regularUser);
+    this.memoryUsers.set(devUser.email, devUser);
 
     this.memoryAuditLogs.push({
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       userId: adminUser.id,
       action: 'SYSTEM_BOOTSTRAP',
       entityType: 'User',
@@ -132,9 +188,12 @@ class AuthRepository {
     const normalized = email.toLowerCase().trim();
     if (this.canTryDb()) {
       try {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: normalized },
-        });
+        const dbUser = await this.withTimeout(
+          prisma.user.findUnique({
+            where: { email: normalized },
+          }),
+          800
+        );
         if (dbUser) {
           return {
             id: dbUser.id,
@@ -162,9 +221,12 @@ class AuthRepository {
   async getUserById(id: string): Promise<StoredUser | null> {
     if (this.canTryDb()) {
       try {
-        const dbUser = await prisma.user.findUnique({
-          where: { id },
-        });
+        const dbUser = await this.withTimeout(
+          prisma.user.findUnique({
+            where: { id },
+          }),
+          800
+        );
         if (dbUser) {
           return {
             id: dbUser.id,
@@ -240,7 +302,7 @@ class AuthRepository {
 
     // Memory fallback
     const user: StoredUser = {
-      id: 'usr_' + crypto.randomUUID().slice(0, 12),
+      id: 'usr_' + generateUUID().slice(0, 12),
       name: data.name,
       email: normalizedEmail,
       passwordHash: data.passwordHash,
@@ -372,7 +434,7 @@ class AuthRepository {
     }
 
     const t: StoredResetToken = {
-      id: 'tok_' + crypto.randomUUID().slice(0, 12),
+      id: 'tok_' + generateUUID().slice(0, 12),
       userId: data.userId,
       tokenHash: data.tokenHash,
       expiresAt: data.expiresAt,
@@ -464,7 +526,7 @@ class AuthRepository {
     }
 
     this.memoryAuditLogs.unshift({
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       userId: data.userId ?? null,
       action: data.action,
       entityType: data.entityType ?? null,

@@ -17,12 +17,10 @@
 import type { ExchangeAdapter } from './ExchangeAdapter';
 import type { Ticker, OrderBook, OrderBookLevel } from '@/types';
 import { WebSocketStreamManager } from '../websocket/WebSocketStreamManager';
+import { currencyConversionService } from '@/services/CurrencyConversionService';
 
 const BASE_REST_URL = 'https://api.binance.com';
 const BASE_WS_URL = 'wss://stream.binance.com:9443/ws';
-
-// Approximate USDT to INR rate for synthetic INR pricing
-const USDT_INR_RATE = 88.5;
 
 interface Binance24hrTicker {
   symbol: string;
@@ -86,7 +84,8 @@ export class BinanceAdapter implements ExchangeAdapter {
 
     const data: Binance24hrTicker = await res.json();
     const receivedAt = new Date();
-    const multiplier = isConvertedToInr ? USDT_INR_RATE : 1;
+    const conversion = isConvertedToInr ? await currencyConversionService.getUsdtInrRate() : null;
+    const multiplier = conversion ? conversion.rate : 1;
 
     const lastPrice = parseFloat(data.lastPrice) * multiplier;
     const bestBid = parseFloat(data.bidPrice) * multiplier;
@@ -113,6 +112,8 @@ export class BinanceAdapter implements ExchangeAdapter {
       receivedAt,
       dataAgeMs,
       isMock: false,
+      conversionRate: conversion?.rate,
+      conversionSource: conversion?.source,
     };
   }
 
@@ -128,7 +129,8 @@ export class BinanceAdapter implements ExchangeAdapter {
 
     const data: BinanceDepth = await res.json();
     const receivedAt = new Date();
-    const multiplier = isConvertedToInr ? USDT_INR_RATE : 1;
+    const conversion = isConvertedToInr ? await currencyConversionService.getUsdtInrRate() : null;
+    const multiplier = conversion ? conversion.rate : 1;
 
     const bids = this.normalizeLevels(data.bids, multiplier);
     const asks = this.normalizeLevels(data.asks, multiplier);
@@ -175,11 +177,20 @@ export class BinanceAdapter implements ExchangeAdapter {
       this.streamManagers.set(streamName, manager);
     }
 
-    const unsubscribe = manager.subscribe((raw, receivedAt) => {
+    let dynamicMultiplier = 1;
+    let conversionInfo: { rate?: number; source?: string } = {};
+
+    const unsubscribe = manager.subscribe(async (raw, receivedAt) => {
       const data = raw as BinanceWSTicker;
       if (!data.c) return;
 
-      const multiplier = isConvertedToInr ? USDT_INR_RATE : 1;
+      if (isConvertedToInr) {
+        const c = await currencyConversionService.getUsdtInrRate();
+        dynamicMultiplier = c.rate;
+        conversionInfo = { rate: c.rate, source: c.source };
+      }
+
+      const multiplier = isConvertedToInr ? dynamicMultiplier : 1;
       const lastPrice = parseFloat(data.c) * multiplier;
       const bestBid = parseFloat(data.b) * multiplier;
       const bestAsk = parseFloat(data.a) * multiplier;
@@ -206,6 +217,8 @@ export class BinanceAdapter implements ExchangeAdapter {
         receivedAt,
         dataAgeMs,
         isMock: false,
+        conversionRate: conversionInfo.rate,
+        conversionSource: conversionInfo.source,
       };
 
       callback(ticker);
@@ -234,11 +247,18 @@ export class BinanceAdapter implements ExchangeAdapter {
       this.streamManagers.set(streamName, manager);
     }
 
-    const unsubscribe = manager.subscribe((raw, receivedAt) => {
+    let dynamicMultiplier = 1;
+
+    const unsubscribe = manager.subscribe(async (raw, receivedAt) => {
       const data = raw as BinanceDepth;
       if (!data.bids || !data.asks) return;
 
-      const multiplier = isConvertedToInr ? USDT_INR_RATE : 1;
+      if (isConvertedToInr) {
+        const c = await currencyConversionService.getUsdtInrRate();
+        dynamicMultiplier = c.rate;
+      }
+
+      const multiplier = isConvertedToInr ? dynamicMultiplier : 1;
       const bids = this.normalizeLevels(data.bids, multiplier);
       const asks = this.normalizeLevels(data.asks, multiplier);
 

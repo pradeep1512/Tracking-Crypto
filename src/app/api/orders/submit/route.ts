@@ -1,10 +1,14 @@
 import { type NextRequest } from 'next/server';
 import { paperTradingService } from '@/services/PaperTradingService';
 import { apiSuccess, apiError, handleUnknownError } from '@/lib/utils/api';
+import { requireAuthUser } from '@/lib/auth/server-auth';
 import type { Side, OrderType } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+
     const body = await request.json();
     const { symbol, exchangeId, side, orderType, quantity, limitPrice, clientOrderId } = body as {
       symbol: string;

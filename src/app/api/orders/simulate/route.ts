@@ -3,9 +3,13 @@ import { executionEstimationService } from '@/services/ExecutionEstimationServic
 import { exchangeRegistry } from '@/lib/exchange/ExchangeRegistry';
 import { orderSimulateSchema } from '@/lib/validation/schemas';
 import { apiSuccess, apiError, handleUnknownError } from '@/lib/utils/api';
+import { requireAuthUser } from '@/lib/auth/server-auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const authCheck = await requireAuthUser();
+    if (authCheck.errorResponse) return authCheck.errorResponse;
+
     const body = await request.json();
     const parsed = orderSimulateSchema.safeParse(body);
 
