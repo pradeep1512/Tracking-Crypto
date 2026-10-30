@@ -27,6 +27,7 @@ import type {
 import { mcxMarketService } from './MCXMarketService';
 import { optionsTradingService } from './OptionsTradingService';
 import { liveTradingService } from './LiveTradingService';
+import { prisma } from '@/lib/database/prisma';
 
 export class PortfolioService {
   private inMemoryPortfolios: Map<string, UserPortfolio> = new Map();
@@ -241,6 +242,78 @@ export class PortfolioService {
    * List user portfolios, optionally filtered by userId
    */
   getPortfolios(userId?: string): UserPortfolio[] {
+    // Opportunistic sync from database
+    prisma.portfolio
+      .findMany({
+        where: userId ? { userId } : undefined,
+        include: { assets: true, positions: true },
+        orderBy: { createdAt: 'desc' },
+      })
+      .then((dbPortfolios) => {
+        if (dbPortfolios && dbPortfolios.length > 0) {
+          for (const p of dbPortfolios) {
+            if (!this.inMemoryPortfolios.has(p.id)) {
+              const mapped: UserPortfolio = {
+                id: p.id,
+                userId: p.userId,
+                name: p.name,
+                description: p.description ?? '',
+                category: p.category as PortfolioCategory,
+                currency: p.currency as 'INR' | 'USDT',
+                initialCapital: Number(p.initialCapital),
+                totalCapital: Number(p.totalCapital),
+                allocatedCapital: Number(p.allocatedCapital),
+                availableBalance: Number(p.availableBalance),
+                investedAmount: Number(p.investedAmount),
+                currentMarketValue: Number(p.currentMarketValue),
+                realizedPnL: Number(p.realizedPnL),
+                unrealizedPnL: Number(p.unrealizedPnL),
+                totalCharges: Number(p.totalCharges),
+                maxInvestmentLimit: Number(p.maxInvestmentLimit),
+                riskLimitPercentage: Number(p.riskLimitPercentage),
+                maxDailyLoss: Number(p.maxDailyLoss),
+                status: p.status as PortfolioStatus,
+                executionMode: p.executionMode as TradingExecutionMode,
+                connectedBrokerName: 'SQL Server Stored Portfolio',
+                assets: p.assets.map((a) => ({
+                  id: a.id,
+                  instrumentId: a.instrumentId,
+                  name: a.instrumentId,
+                  category: 'CRYPTO',
+                  targetAllocationPct: Number(a.targetAllocationPct),
+                  currentValue: Number(a.currentValue),
+                  weightPct: Number(a.targetAllocationPct),
+                })),
+                positions: p.positions.map((pos) => ({
+                  id: pos.id,
+                  portfolioId: pos.portfolioId,
+                  symbol: pos.instrumentId,
+                  name: pos.instrumentId,
+                  category: 'CRYPTO',
+                  side: pos.side as Side,
+                  quantity: Number(pos.quantity),
+                  entryPrice: Number(pos.averageEntryPrice),
+                  currentPrice: Number(pos.currentPrice),
+                  marketValue: Number(pos.marketValue),
+                  investedAmount: Number(pos.averageEntryPrice) * Number(pos.quantity),
+                  currentMarketValue: Number(pos.marketValue),
+                  unrealizedPnL: Number(pos.unrealizedPnL),
+                  realizedPnL: Number(pos.realizedPnL),
+                  status: pos.status as 'OPEN' | 'CLOSED',
+                  openedAt: pos.openedAt.toISOString(),
+                })),
+                activePositionsCount: p.positions.filter((pos) => pos.status === 'OPEN').length,
+                expiringContractsCount: 0,
+                createdAt: p.createdAt.toISOString(),
+                updatedAt: p.updatedAt.toISOString(),
+              };
+              this.inMemoryPortfolios.set(mapped.id, mapped);
+            }
+          }
+        }
+      })
+      .catch(() => {});
+
     const list = Array.from(this.inMemoryPortfolios.values());
     const filtered = userId ? list.filter((p) => p.userId === userId) : list;
     return filtered.map((p) => this.recalculateMetrics(p));
@@ -301,7 +374,7 @@ export class PortfolioService {
   }
 
   /**
-   * Create a new portfolio
+   * Create a new portfolio and insert into SQL Server database [Portfolios] table
    */
   createPortfolio(data: {
     userId?: string;
@@ -322,7 +395,7 @@ export class PortfolioService {
 
     const portfolio: UserPortfolio = {
       id,
-      userId: data.userId ?? 'admin-tc-root-001',
+      userId: data.userId ?? 'usr_admin_root_01',
       name: data.name.trim(),
       description: data.description?.trim() ?? '',
       category: data.category,
@@ -350,12 +423,56 @@ export class PortfolioService {
       updatedAt: new Date().toISOString(),
     };
 
+    // 1. Instant local memory cache update
     this.inMemoryPortfolios.set(id, portfolio);
+
+    // 2. Direct persistence into local SQL Server database [Portfolios] table
+    (async () => {
+      try {
+        let dbUserId = portfolio.userId;
+        const userExists = await prisma.user.findUnique({ where: { id: dbUserId } });
+        if (!userExists) {
+          const firstUser = await prisma.user.findFirst();
+          if (firstUser) dbUserId = firstUser.id;
+        }
+
+        if (dbUserId) {
+          await prisma.portfolio.create({
+            data: {
+              id: portfolio.id,
+              userId: dbUserId,
+              name: portfolio.name,
+              description: portfolio.description,
+              category: portfolio.category,
+              currency: portfolio.currency,
+              initialCapital: portfolio.initialCapital,
+              totalCapital: portfolio.totalCapital,
+              allocatedCapital: portfolio.allocatedCapital,
+              availableBalance: portfolio.availableBalance,
+              investedAmount: portfolio.investedAmount,
+              currentMarketValue: portfolio.currentMarketValue,
+              realizedPnL: portfolio.realizedPnL,
+              unrealizedPnL: portfolio.unrealizedPnL,
+              totalCharges: portfolio.totalCharges,
+              maxInvestmentLimit: portfolio.maxInvestmentLimit,
+              riskLimitPercentage: portfolio.riskLimitPercentage,
+              maxDailyLoss: portfolio.maxDailyLoss,
+              status: portfolio.status,
+              executionMode: portfolio.executionMode,
+            },
+          });
+          console.log(`[PortfolioService] Inserted portfolio '${portfolio.name}' (${portfolio.id}) into SQL Server table [Portfolios]`);
+        }
+      } catch (dbErr) {
+        console.warn(`[PortfolioService] Database insert note for portfolio '${portfolio.name}':`, (dbErr as Error).message);
+      }
+    })();
+
     return portfolio;
   }
 
   /**
-   * Edit portfolio metadata
+   * Edit portfolio metadata and update in SQL Server
    */
   updatePortfolio(id: string, updates: Partial<UserPortfolio>): UserPortfolio {
     const existing = this.inMemoryPortfolios.get(id);
@@ -363,6 +480,25 @@ export class PortfolioService {
 
     const updated = { ...existing, ...updates, updatedAt: new Date().toISOString() };
     this.inMemoryPortfolios.set(id, updated);
+
+    // Sync to database
+    prisma.portfolio
+      .update({
+        where: { id },
+        data: {
+          name: updated.name,
+          description: updated.description,
+          status: updated.status,
+          totalCapital: updated.totalCapital,
+          availableBalance: updated.availableBalance,
+          investedAmount: updated.investedAmount,
+          currentMarketValue: updated.currentMarketValue,
+          realizedPnL: updated.realizedPnL,
+          unrealizedPnL: updated.unrealizedPnL,
+        },
+      })
+      .catch(() => {});
+
     return this.recalculateMetrics(updated);
   }
 
@@ -370,6 +506,12 @@ export class PortfolioService {
    * Soft-delete portfolio (preserves transaction records)
    */
   deletePortfolio(id: string): boolean {
+    prisma.portfolio
+      .update({
+        where: { id },
+        data: { isArchived: true, status: 'STOPPED' },
+      })
+      .catch(() => {});
     return this.inMemoryPortfolios.delete(id);
   }
 

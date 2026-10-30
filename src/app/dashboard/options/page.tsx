@@ -26,6 +26,8 @@ export default function OptionsTradingPage() {
   const [selectedExpiry, setSelectedExpiry] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [selectedContract, setSelectedContract] = useState<OptionContractDetails | null>(null);
+  const [currencyMode, setCurrencyMode] = useState<'INR' | 'USD'>('INR');
+  const [usdtRate, setUsdtRate] = useState<number>(95.02);
 
   // Order placement state
   const [orderSide, setOrderSide] = useState<Side>('BUY');
@@ -35,6 +37,18 @@ export default function OptionsTradingPage() {
   const [stopLossPrice, setStopLossPrice] = useState<number>(0);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderSuccessMsg, setOrderSuccessMsg] = useState<string | null>(null);
+
+  const fetchConversionRate = useCallback(async () => {
+    try {
+      const res = await fetch('/api/market/conversion-rate');
+      const json = await res.json();
+      if (json.success && json.data?.rate) {
+        setUsdtRate(json.data.rate);
+      }
+    } catch {
+      // Use fallback
+    }
+  }, []);
 
   const fetchOptionsChain = useCallback(async () => {
     try {
@@ -54,17 +68,34 @@ export default function OptionsTradingPage() {
   }, [underlying, selectedExpiry]);
 
   useEffect(() => {
+    fetchConversionRate();
     fetchOptionsChain();
     const interval = setInterval(fetchOptionsChain, 3500);
-    return () => clearInterval(interval);
-  }, [fetchOptionsChain]);
+    const rateInterval = setInterval(fetchConversionRate, 30000);
+    return () => {
+      clearInterval(interval);
+      clearInterval(rateInterval);
+    };
+  }, [fetchOptionsChain, fetchConversionRate]);
+
+  const formatPriceDisplay = useCallback((val: number, isCrypto: boolean) => {
+    if (currencyMode === 'INR') {
+      const inrVal = isCrypto ? val * usdtRate : val;
+      return `₹${inrVal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+    }
+    const usdVal = isCrypto ? val : val / usdtRate;
+    return `$${usdVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }, [currencyMode, usdtRate]);
 
   // When a contract is selected, populate order entry defaults
   const handleSelectContract = (contract: OptionContractDetails) => {
     setSelectedContract(contract);
-    setEntryPrice(contract.askPrice);
-    setTargetPrice(Number((contract.askPrice * 1.35).toFixed(2)));
-    setStopLossPrice(Number((contract.askPrice * 0.75).toFixed(2)));
+    const isCrypto = chainData?.category === 'CRYPTO';
+    const mult = (currencyMode === 'INR' && isCrypto) ? usdtRate : 1;
+    const ask = Number((contract.askPrice * mult).toFixed(2));
+    setEntryPrice(ask);
+    setTargetPrice(Number((ask * 1.35).toFixed(2)));
+    setStopLossPrice(Number((ask * 0.75).toFixed(2)));
     setOrderSuccessMsg(null);
   };
 
@@ -97,7 +128,7 @@ export default function OptionsTradingPage() {
       const json = await res.json();
       if (json.success) {
         setOrderSuccessMsg(
-          `Order ${json.data.order.orderId} executed! Filled ${orderQty} lots of ${selectedContract.id} at ₹${json.data.order.executionPrice}`
+          `Order ${json.data.order.orderId} executed! Filled ${orderQty} lots of ${selectedContract.id} at ${currencyMode === 'INR' ? '₹' : '$'}${json.data.order.executionPrice}`
         );
       }
     } catch {
@@ -123,34 +154,58 @@ export default function OptionsTradingPage() {
           </p>
         </div>
 
-        {/* Underlying Selector */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          {[
-            { sym: 'BTC', label: 'BTC Crypto', cat: 'CRYPTO' },
-            { sym: 'ETH', label: 'ETH Crypto', cat: 'CRYPTO' },
-            { sym: 'SOL', label: 'SOL Crypto', cat: 'CRYPTO' },
-            { sym: 'GOLD', label: 'MCX Gold', cat: 'MCX' },
-            { sym: 'SILVER', label: 'MCX Silver', cat: 'MCX' },
-            { sym: 'CRUDEOIL', label: 'MCX Crude', cat: 'MCX' },
-            { sym: 'NATURALGAS', label: 'MCX Gas', cat: 'MCX' },
-          ].map((item) => (
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Currency Toggle */}
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-1 text-xs font-medium">
             <button
-              key={item.sym}
-              onClick={() => {
-                setUnderlying(item.sym);
-                setSelectedExpiry('');
-                setSelectedContract(null);
-              }}
+              onClick={() => setCurrencyMode('INR')}
               className={cn(
-                'px-3 py-1.5 rounded-lg text-xs font-bold transition-all border whitespace-nowrap',
-                underlying === item.sym
-                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/50 shadow'
-                  : 'glass border-transparent text-muted-foreground hover:text-white hover:border-white/10'
+                'px-3 py-1 rounded-md transition-all',
+                currencyMode === 'INR' ? 'bg-purple-600 text-white font-bold shadow' : 'text-muted-foreground hover:text-white'
               )}
             >
-              {item.label}
+              INR (₹)
             </button>
-          ))}
+            <button
+              onClick={() => setCurrencyMode('USD')}
+              className={cn(
+                'px-3 py-1 rounded-md transition-all',
+                currencyMode === 'USD' ? 'bg-purple-600 text-white font-bold shadow' : 'text-muted-foreground hover:text-white'
+              )}
+            >
+              USD ($)
+            </button>
+          </div>
+
+          {/* Underlying Selector */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+            {[
+              { sym: 'BTC', label: 'BTC Crypto', cat: 'CRYPTO' },
+              { sym: 'ETH', label: 'ETH Crypto', cat: 'CRYPTO' },
+              { sym: 'SOL', label: 'SOL Crypto', cat: 'CRYPTO' },
+              { sym: 'GOLD', label: 'MCX Gold', cat: 'MCX' },
+              { sym: 'SILVER', label: 'MCX Silver', cat: 'MCX' },
+              { sym: 'CRUDEOIL', label: 'MCX Crude', cat: 'MCX' },
+              { sym: 'NATURALGAS', label: 'MCX Gas', cat: 'MCX' },
+            ].map((item) => (
+              <button
+                key={item.sym}
+                onClick={() => {
+                  setUnderlying(item.sym);
+                  setSelectedExpiry('');
+                  setSelectedContract(null);
+                }}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-bold transition-all border whitespace-nowrap',
+                  underlying === item.sym
+                    ? 'bg-purple-500/20 text-purple-300 border-purple-500/50 shadow'
+                    : 'glass border-transparent text-muted-foreground hover:text-white hover:border-white/10'
+                )}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -161,7 +216,7 @@ export default function OptionsTradingPage() {
             <div>
               <span className="text-[11px] text-muted-foreground uppercase font-semibold">Underlying Spot ({chainData.underlying})</span>
               <p className="text-xl font-mono font-black text-white">
-                {chainData.category === 'CRYPTO' ? '$' : '₹'}{chainData.underlyingPrice.toLocaleString('en-IN')}
+                {formatPriceDisplay(chainData.underlyingPrice, chainData.category === 'CRYPTO')}
               </p>
             </div>
             <div className="h-8 w-px bg-white/10 hidden sm:block" />
@@ -169,6 +224,11 @@ export default function OptionsTradingPage() {
               <span className="text-[11px] text-muted-foreground uppercase font-semibold">Exchange Venue</span>
               <p className="text-xs font-mono font-bold text-purple-300">{chainData.exchange}</p>
             </div>
+            {chainData.category === 'CRYPTO' && currencyMode === 'INR' && (
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono text-purple-300">
+                <span>1 USDT = ₹{usdtRate.toFixed(2)}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -222,11 +282,11 @@ export default function OptionsTradingPage() {
             <span>Vol</span>
             <span>Bid</span>
             <span>Ask</span>
-            <span className="font-bold text-emerald-400">LTP</span>
+            <span className="font-bold text-emerald-400">LTP ({currencyMode === 'INR' ? '₹' : '$'})</span>
 
-            <span className="font-extrabold text-white">Strike</span>
+            <span className="font-extrabold text-white">Strike ({currencyMode === 'INR' ? '₹' : '$'})</span>
 
-            <span className="font-bold text-rose-400">LTP</span>
+            <span className="font-bold text-rose-400">LTP ({currencyMode === 'INR' ? '₹' : '$'})</span>
             <span>Bid</span>
             <span>Ask</span>
             <span>Vol</span>
@@ -240,6 +300,12 @@ export default function OptionsTradingPage() {
               {chainData.strikes.map((row) => {
                 const isSelectedCall = selectedContract?.id === row.call.id;
                 const isSelectedPut = selectedContract?.id === row.put.id;
+                const isCrypto = chainData.category === 'CRYPTO';
+                const mult = (currencyMode === 'INR' && isCrypto) ? usdtRate : 1;
+                const formatVal = (v: number) => {
+                  const val = v * mult;
+                  return val >= 1000 ? Math.round(val).toLocaleString('en-IN') : val.toFixed(2);
+                };
 
                 return (
                   <div
@@ -253,8 +319,8 @@ export default function OptionsTradingPage() {
                     <span className="text-muted-foreground">{row.call.impliedVolatility}%</span>
                     <span className="text-muted-foreground">{row.call.openInterest.toLocaleString()}</span>
                     <span className="text-muted-foreground">{row.call.volume}</span>
-                    <span className="text-muted-foreground">{row.call.bidPrice}</span>
-                    <span className="text-muted-foreground">{row.call.askPrice}</span>
+                    <span className="text-muted-foreground">{formatVal(row.call.bidPrice)}</span>
+                    <span className="text-muted-foreground">{formatVal(row.call.askPrice)}</span>
                     <button
                       onClick={() => handleSelectContract(row.call)}
                       className={cn(
@@ -262,7 +328,7 @@ export default function OptionsTradingPage() {
                         isSelectedCall && 'bg-emerald-500 text-black font-extrabold'
                       )}
                     >
-                      {row.call.lastTradedPrice}
+                      {formatVal(row.call.lastTradedPrice)}
                     </button>
 
                     {/* STRIKE CELL */}
@@ -272,7 +338,7 @@ export default function OptionsTradingPage() {
                         row.isATM ? 'bg-purple-600 font-extrabold text-white shadow' : 'bg-black/30'
                       )}
                     >
-                      {row.strikePrice}
+                      {formatVal(row.strikePrice)}
                       {row.isATM && <span className="block text-[8px] font-mono text-purple-200">ATM</span>}
                     </span>
 
@@ -284,10 +350,10 @@ export default function OptionsTradingPage() {
                         isSelectedPut && 'bg-rose-500 text-white font-extrabold'
                       )}
                     >
-                      {row.put.lastTradedPrice}
+                      {formatVal(row.put.lastTradedPrice)}
                     </button>
-                    <span className="text-muted-foreground">{row.put.bidPrice}</span>
-                    <span className="text-muted-foreground">{row.put.askPrice}</span>
+                    <span className="text-muted-foreground">{formatVal(row.put.bidPrice)}</span>
+                    <span className="text-muted-foreground">{formatVal(row.put.askPrice)}</span>
                     <span className="text-muted-foreground">{row.put.volume}</span>
                     <span className="text-muted-foreground">{row.put.openInterest.toLocaleString()}</span>
                     <span className="text-muted-foreground">{row.put.impliedVolatility}%</span>
@@ -416,7 +482,7 @@ export default function OptionsTradingPage() {
 
             <div className="flex items-center justify-between pt-2">
               <span className="text-xs text-muted-foreground font-mono">
-                Total Margin: ₹{(entryPrice * orderQty * selectedContract.lotSize).toLocaleString()}
+                Total Margin: {currencyMode === 'INR' ? '₹' : '$'}{(entryPrice * orderQty * selectedContract.lotSize).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
               </span>
 
               <button
