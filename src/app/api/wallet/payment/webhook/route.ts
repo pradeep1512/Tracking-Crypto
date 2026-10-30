@@ -15,8 +15,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: check.error || 'Invalid signature' }, { status: 400 });
     }
 
+    if (check.isDuplicate) {
+      return NextResponse.json({ status: 'ok', duplicate: true, message: 'Webhook event already processed (idempotent)' });
+    }
+
     // Process event based on provider payload
-    if (check.event === 'payment.captured' && check.paymentId && check.orderId) {
+    if ((check.event === 'payment.captured' || check.event === 'order.paid') && check.paymentId && check.orderId) {
       await walletService.processVerifiedDeposit('dev_user', {
         orderId: check.orderId,
         gatewayPaymentId: check.paymentId,

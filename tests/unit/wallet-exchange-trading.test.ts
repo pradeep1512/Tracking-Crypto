@@ -360,4 +360,83 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
     // Reconnect for system health
     await exchangeTradingService.verifyExchangeConnection('broker_coindcx_01');
   });
+
+  // ─── 17. Bank-to-Wallet: Exact Rupee to Paise Conversion ──────────────────
+  it('17. Converts all suggested INR amounts into exact paise without floating point error', async () => {
+    const suggestedAmounts = [100, 500, 1000, 2000, 5000, 10000];
+    const expectedPaise = [10000, 50000, 100000, 200000, 500000, 1000000];
+
+    for (let i = 0; i < suggestedAmounts.length; i++) {
+      const topup = await walletService.initiateAddMoney({
+        userId: testUserId,
+        amountINR: suggestedAmounts[i],
+        paymentMethod: 'UPI',
+      });
+      assert.strictEqual(topup.order.amount, suggestedAmounts[i]);
+      assert.strictEqual(topup.order.amountInPaise, expectedPaise[i]);
+    }
+  });
+
+  // ─── 18. Razorpay Standard Checkout Configuration & Key Protection ────────
+  it('18. Generates Razorpay Standard Checkout options with key_id and never exposes secret', () => {
+    const sampleOrderId = Array.from((paymentGatewayService as unknown as { inMemoryOrders: Map<string, { orderId: string }> }).inMemoryOrders.keys())[0];
+    assert.ok(sampleOrderId);
+
+    const options = paymentGatewayService.getRazorpayCheckoutOptions(sampleOrderId, {
+      name: 'Test Trader',
+      email: 'trader@example.com',
+    });
+
+    assert.ok(options.key);
+    assert.ok(options.amount > 0);
+    assert.strictEqual(options.currency, 'INR');
+    assert.ok(options.order_id);
+    assert.strictEqual(options.name, 'TrackingCrypt');
+    assert.strictEqual(options.prefill.email, 'trader@example.com');
+
+    // Security check: Secret key must NEVER be part of checkout options
+    assert.strictEqual((options as Record<string, unknown>).key_secret, undefined);
+    assert.strictEqual((options as Record<string, unknown>).secret, undefined);
+  });
+
+  // ─── 19. Webhook Duplicate-Event Delivery Protection ───────────────────────
+  it('19. Accurately verifies webhook signatures and prevents duplicate-event replay', () => {
+    const payload = JSON.stringify({
+      event: 'payment.captured',
+      event_id: `evt_test_${Date.now()}`,
+      payload: {
+        payment: {
+          entity: {
+            id: 'pay_live_test_123',
+            amount: 50000,
+            status: 'captured',
+            order_id: 'order_test_9921',
+          },
+        },
+      },
+    });
+
+    // First webhook delivery
+    const firstCheck = paymentGatewayService.verifyWebhookSignature(payload, 'sandbox_webhook_sig_ok');
+    assert.strictEqual(firstCheck.isValid, true);
+    assert.strictEqual(firstCheck.event, 'payment.captured');
+    assert.strictEqual(firstCheck.isDuplicate, false);
+
+    // Duplicate webhook delivery with same event_id
+    const duplicateCheck = paymentGatewayService.verifyWebhookSignature(payload, 'sandbox_webhook_sig_ok');
+    assert.strictEqual(duplicateCheck.isValid, true);
+    assert.strictEqual(duplicateCheck.isDuplicate, true);
+  });
+
+  // ─── 20. Razorpay Compliance & Prohibited Business Safety Gating ──────────
+  it('20. Enforces safety gating for unapproved crypto funding under Razorpay Prohibited Business policy', () => {
+    const compliance = paymentGatewayService.checkRazorpayApproval();
+    assert.ok(compliance.mode);
+    assert.ok(compliance.notice);
+    assert.ok(compliance.notice.includes('Razorpay'));
+
+    // In default environment without written merchant crypto underwriting, live gateway operates in safe sandbox mode
+    assert.strictEqual(compliance.mode, 'SIMULATED_SANDBOX');
+    assert.strictEqual(compliance.requiresApproval, true);
+  });
 });

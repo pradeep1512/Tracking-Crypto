@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import { walletService } from '@/services/WalletService';
+import { paymentGatewayService } from '@/services/PaymentGatewayService';
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,9 +24,17 @@ export async function POST(req: NextRequest) {
       paymentMethod,
     });
 
+    const checkoutOptions = paymentGatewayService.getRazorpayCheckoutOptions(result.order.orderId, {
+      name: session?.user?.name || undefined,
+      email: session?.user?.email || undefined,
+    });
+
     return NextResponse.json({
       success: true,
-      data: result,
+      data: {
+        ...result,
+        checkoutOptions,
+      },
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to initiate wallet topup';

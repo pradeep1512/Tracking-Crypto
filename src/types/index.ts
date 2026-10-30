@@ -525,9 +525,11 @@ export interface PaymentGatewayOrderResponse {
   gatewayName: 'RAZORPAY' | 'STRIPE' | 'CASHFREE' | 'SANDBOX_SIMULATOR';
   gatewayOrderId: string;
   amount: number;
+  amountInPaise: number;
   currency: string;
   keyId?: string;
   idempotencyKey: string;
+  complianceNotice?: string;
   message?: string;
 }
 
