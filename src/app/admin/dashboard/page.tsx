@@ -221,7 +221,7 @@ export default function AdminDashboardPage() {
 
             <Link
               href="/dashboard"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-400/10 border border-yellow-400/30 text-yellow-300 hover:bg-yellow-400/20 text-xs font-semibold transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Trader Dashboard</span>
@@ -262,8 +262,8 @@ export default function AdminDashboardPage() {
               <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
                 Total Users
               </span>
-              <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-                <Users className="w-4 h-4" />
+              <div className="p-2 rounded-lg bg-yellow-400/10 border border-yellow-400/20 text-yellow-400">
+                <Users className="w-4 h-4 text-yellow-400" />
               </div>
             </div>
             <p className="text-3xl font-bold font-mono text-white">{stats.totalUsers}</p>
@@ -315,7 +315,7 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Users className="w-4 h-4 text-cyan-400" />
+                <Users className="w-4 h-4 text-yellow-400" />
                 <span>User Account Governance</span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -332,14 +332,14 @@ export default function AdminDashboardPage() {
                   placeholder="Search name, email, ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                  className="pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-yellow-400"
                 />
               </div>
 
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value as 'ALL' | 'USER' | 'ADMIN')}
-                className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400"
               >
                 <option value="ALL" className="bg-slate-900">All Roles</option>
                 <option value="USER" className="bg-slate-900">Users</option>
@@ -349,7 +349,7 @@ export default function AdminDashboardPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'INACTIVE')}
-                className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400"
               >
                 <option value="ALL" className="bg-slate-900">All Statuses</option>
                 <option value="ACTIVE" className="bg-slate-900">Active</option>
@@ -394,7 +394,7 @@ export default function AdminDashboardPage() {
                             className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                               u.role === 'ADMIN'
                                 ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
-                                : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                                : 'bg-yellow-400/15 text-yellow-300 border border-yellow-400/30'
                             }`}
                           >
                             {u.role === 'ADMIN' ? <Shield className="w-3 h-3" /> : null}

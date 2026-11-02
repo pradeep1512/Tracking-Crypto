@@ -21,7 +21,7 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
     'bg-red-500',
     'bg-orange-500',
     'bg-amber-500',
-    'bg-blue-500',
+    'bg-yellow-400',
     'bg-emerald-500',
   ];
 
@@ -29,7 +29,7 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
     'text-red-400',
     'text-orange-400',
     'text-amber-400',
-    'text-blue-400',
+    'text-yellow-400',
     'text-emerald-400',
   ];
 

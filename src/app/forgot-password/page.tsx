@@ -70,9 +70,9 @@ export default function ForgotPasswordPage() {
 
         {/* Development preview card for instant testing */}
         {devResetUrl && (
-          <div className="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-xs text-cyan-300 space-y-2 animate-fadeIn">
+          <div className="p-3.5 rounded-xl bg-yellow-400/10 border border-yellow-400/30 text-xs text-yellow-300 space-y-2 animate-fadeIn">
             <div className="flex items-center gap-2 font-semibold">
-              <KeyRound className="w-4 h-4 text-cyan-400" />
+              <KeyRound className="w-4 h-4 text-yellow-400" />
               <span>Development Simulation Token Generated</span>
             </div>
             <p className="text-muted-foreground text-[11px] leading-relaxed">
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
             </p>
             <Link
               href={devResetUrl}
-              className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 font-semibold underline break-all"
+              className="inline-flex items-center gap-1.5 text-yellow-400 hover:text-yellow-300 font-semibold underline break-all"
             >
               <span>Open Reset Password Link</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
         <div className="pt-2 text-center text-xs text-muted-foreground">
           <Link
             href="/signin"
-            className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-yellow-400 hover:text-yellow-300 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Sign In</span>

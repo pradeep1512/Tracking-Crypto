@@ -74,15 +74,15 @@ export default function CryptoMarketsPage() {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-5 border-cyan-500/20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-5 border-yellow-500/20">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              <Zap className="w-6 h-6 text-cyan-400" />
+              <Zap className="w-6 h-6 text-yellow-400" />
               <span>Delta Exchange Crypto Markets</span>
             </h1>
-            <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 pulse-dot" />
+            <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-yellow-400/10 text-yellow-400 border border-yellow-400/30 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-yellow-400 pulse-dot" />
               Sole Source: Delta Exchange India
             </span>
           </div>
@@ -114,7 +114,7 @@ export default function CryptoMarketsPage() {
               className={cn(
                 'p-4 rounded-xl border text-left transition-all relative overflow-hidden',
                 isSelected
-                  ? 'bg-cyan-500/15 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
+                  ? 'bg-yellow-400/15 border-yellow-400/50 shadow-lg shadow-yellow-500/10'
                   : 'glass border-transparent hover:border-white/10'
               )}
             >
@@ -123,7 +123,7 @@ export default function CryptoMarketsPage() {
                   <span className="text-lg">{asset.icon}</span>
                   <span className="font-bold text-white text-xs">{asset.base}</span>
                 </div>
-                <span className="text-[10px] font-mono text-cyan-400 font-bold">USD</span>
+                <span className="text-[10px] font-mono text-yellow-400 font-bold">USD</span>
               </div>
 
               <div className="text-base font-black font-mono text-white mb-1">
@@ -143,7 +143,7 @@ export default function CryptoMarketsPage() {
 
       {/* Detail Showcase Card */}
       {activeTicker && (
-        <div className="glass-card p-6 border-cyan-500/30 space-y-6">
+        <div className="glass-card p-6 border-yellow-500/30 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
               <span className="text-3xl">{activeAsset.icon}</span>
@@ -190,15 +190,15 @@ export default function CryptoMarketsPage() {
 
             <div className="p-3 rounded-lg bg-black/40 border border-white/10">
               <span className="text-muted-foreground text-[10px] block">DATA FRESHNESS</span>
-              <span className="text-base font-bold text-cyan-400">{activeTicker.dataAgeMs} ms</span>
+              <span className="text-base font-bold text-yellow-400">{activeTicker.dataAgeMs} ms</span>
               <span className="text-[10px] text-zinc-500 block mt-0.5">Exchange latency</span>
             </div>
           </div>
 
           {/* Exchange Attribution Banner */}
-          <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-yellow-400 flex-shrink-0" />
               <span className="text-zinc-300">
                 Official exchange data supplied directly by <strong>Delta Exchange India</strong> REST and WebSocket streams.
               </span>

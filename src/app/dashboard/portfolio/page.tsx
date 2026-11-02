@@ -249,9 +249,9 @@ export default function MyPortfolioPage() {
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-colors shadow-lg flex items-center gap-2 self-start sm:self-auto"
+          className="px-4 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs transition-colors shadow-lg flex items-center gap-2 self-start sm:self-auto cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 text-black" />
           <span>Create New Portfolio</span>
         </button>
       </div>
@@ -277,7 +277,7 @@ export default function MyPortfolioPage() {
             className={cn(
               'px-4 py-2.5 rounded-xl text-xs font-bold transition-all border whitespace-nowrap flex items-center gap-2.5',
               selectedPortfolioId === p.id
-                ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow'
+                ? 'bg-yellow-400/15 border-yellow-400/40 text-yellow-300 shadow'
                 : 'glass border-transparent text-muted-foreground hover:text-white hover:border-white/10'
             )}
           >
@@ -294,7 +294,7 @@ export default function MyPortfolioPage() {
       {activePortfolio && (
         <div className="space-y-6">
           {/* Top Control Header Card */}
-          <div className="glass-card p-6 border-cyan-500/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="glass-card p-6 border-yellow-500/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5">
                 <h2 className="text-2xl font-black text-white">{activePortfolio.name}</h2>
@@ -382,7 +382,7 @@ export default function MyPortfolioPage() {
 
             <div className="glass-card p-4">
               <span className="text-[11px] text-muted-foreground uppercase font-semibold">Available Balance</span>
-              <p className="text-xl font-mono font-black text-cyan-400 mt-1">
+              <p className="text-xl font-mono font-black text-yellow-400 mt-1">
                 ${activePortfolio.availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <span className="text-[10px] text-muted-foreground">Free margin</span>
@@ -409,7 +409,7 @@ export default function MyPortfolioPage() {
           <div className="glass-card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-cyan-400" />
+                <Layers className="w-4 h-4 text-yellow-400" />
                 <span>Active Positions ({activePortfolio.positions.filter((p) => p.status === 'OPEN').length})</span>
               </h3>
             </div>
@@ -483,10 +483,10 @@ export default function MyPortfolioPage() {
       {/* Create Portfolio Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="glass-card max-w-lg w-full p-6 border-cyan-500/40 space-y-5 animate-in zoom-in-95 duration-150">
+          <div className="glass-card max-w-lg w-full p-6 border-yellow-500/40 space-y-5 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-cyan-400" />
+                <Briefcase className="w-5 h-5 text-yellow-400" />
                 <span>Create New Portfolio</span>
               </h3>
               <button onClick={() => setShowCreateModal(false)} className="text-muted-foreground hover:text-white">
@@ -503,7 +503,7 @@ export default function MyPortfolioPage() {
                   placeholder="e.g. Gold Reserve Alpha"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-yellow-400"
                 />
               </div>
 
@@ -514,7 +514,7 @@ export default function MyPortfolioPage() {
                   placeholder="e.g. Systematic momentum trading across MCX contracts"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-yellow-400"
                 />
               </div>
 
@@ -524,7 +524,7 @@ export default function MyPortfolioPage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as PortfolioCategory)}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-yellow-400"
                   >
                     <option value="CRYPTO">Crypto</option>
                     <option value="OPTIONS_TRADING">Options Trading (Delta Exchange)</option>
@@ -537,7 +537,7 @@ export default function MyPortfolioPage() {
                   <select
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value as 'USD' | 'USDT')}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-yellow-400"
                   >
                     <option value="USD">USD ($)</option>
                     <option value="USDT">USDT ($)</option>
@@ -553,7 +553,7 @@ export default function MyPortfolioPage() {
                     required
                     value={initialCapital}
                     onChange={(e) => setInitialCapital(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-yellow-400"
                   />
                 </div>
 
@@ -563,7 +563,7 @@ export default function MyPortfolioPage() {
                     type="number"
                     value={maxInvestment}
                     onChange={(e) => setMaxInvestment(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-yellow-400"
                   />
                 </div>
 
@@ -574,7 +574,7 @@ export default function MyPortfolioPage() {
                     step="0.5"
                     value={riskLimit}
                     onChange={(e) => setRiskLimit(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-yellow-400"
                   />
                 </div>
               </div>
@@ -590,7 +590,7 @@ export default function MyPortfolioPage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-colors shadow"
+                  className="px-5 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs transition-colors shadow cursor-pointer"
                 >
                   Create Portfolio
                 </button>
@@ -626,7 +626,7 @@ export default function MyPortfolioPage() {
               <div className="text-xs text-muted-foreground mb-1">Target Portfolio:</div>
               <div className="text-sm font-bold text-white flex items-center gap-2">
                 <span>{portfolioToDelete.name}</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/50 text-cyan-300 border border-cyan-500/20">
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/50 text-yellow-300 border border-yellow-400/20">
                   {portfolioToDelete.currency}
                 </span>
               </div>

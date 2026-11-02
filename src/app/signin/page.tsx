@@ -162,14 +162,14 @@ function SignInContent() {
                 id="rememberMe"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="rounded border-white/20 bg-white/5 text-cyan-500 focus:ring-cyan-500/30"
+                className="rounded border-white/20 bg-white/5 text-yellow-400 focus:ring-yellow-400/30 accent-yellow-400"
               />
               <span>Remember me</span>
             </label>
 
             <Link
               href="/forgot-password"
-              className="text-xs text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-xs text-yellow-400 hover:text-yellow-300 font-medium transition-colors"
             >
               Forgot Password?
             </Link>
@@ -188,14 +188,14 @@ function SignInContent() {
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
-              className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+              className="text-yellow-400 hover:text-yellow-300 font-medium transition-colors"
             >
               Create Account
             </Link>
           </p>
 
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground/60">
-            <ShieldCheck className="w-3.5 h-3.5 text-cyan-500" />
+            <ShieldCheck className="w-3.5 h-3.5 text-yellow-400" />
             <span>Encrypted Session & Multi-Asset Access</span>
           </div>
         </div>

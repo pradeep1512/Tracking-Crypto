@@ -209,7 +209,7 @@ export default function OrdersPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-white">Execution Estimator & Paper Trading</h1>
-            <span className="px-2 py-0.5 text-xs font-semibold rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <span className="px-2 py-0.5 text-xs font-semibold rounded bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
               Phase 5 Simulator
             </span>
           </div>
@@ -225,7 +225,7 @@ export default function OrdersPage() {
               onClick={() => setActiveTab('simulator')}
               className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
                 activeTab === 'simulator'
-                  ? 'bg-cyan-500 text-black font-semibold shadow-sm'
+                  ? 'bg-yellow-400 text-black font-semibold shadow-sm'
                   : 'text-muted-foreground hover:text-white'
               }`}
             >
@@ -235,7 +235,7 @@ export default function OrdersPage() {
               onClick={() => setActiveTab('portfolio')}
               className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
                 activeTab === 'portfolio'
-                  ? 'bg-cyan-500 text-black font-semibold shadow-sm'
+                  ? 'bg-yellow-400 text-black font-semibold shadow-sm'
                   : 'text-muted-foreground hover:text-white'
               }`}
             >
@@ -250,7 +250,7 @@ export default function OrdersPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="glass-card p-3 space-y-0.5">
             <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-              <Wallet className="w-3.5 h-3.5 text-cyan-400" />
+              <Wallet className="w-3.5 h-3.5 text-yellow-400" />
               Paper Cash (USDT)
             </span>
             <p className="text-base font-bold font-mono text-white">
@@ -285,7 +285,7 @@ export default function OrdersPage() {
               <Clock className="w-3.5 h-3.5 text-amber-400" />
               Simulated Trades
             </span>
-            <p className="text-base font-bold font-mono text-cyan-300">
+            <p className="text-base font-bold font-mono text-yellow-300">
               {portfolio.totalTrades} Executed
             </p>
           </div>
@@ -299,7 +299,7 @@ export default function OrdersPage() {
           <div className="glass-card p-6 space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-cyan-400" />
+                <ShoppingCart className="w-4 h-4 text-yellow-400" />
                 Configure Paper Order
               </h2>
 
@@ -307,7 +307,7 @@ export default function OrdersPage() {
                 <button
                   onClick={() => setExchangeId('delta')}
                   className={`px-2 py-0.5 rounded ${
-                    exchangeId === 'delta' ? 'bg-cyan-500 text-black font-bold' : 'text-muted-foreground'
+                    exchangeId === 'delta' ? 'bg-yellow-400 text-black font-bold' : 'text-muted-foreground'
                   }`}
                 >
                   Delta Exchange
@@ -330,7 +330,7 @@ export default function OrdersPage() {
                 <select
                   value={symbol}
                   onChange={(e) => setSymbol(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs focus:ring-1 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs focus:ring-1 focus:ring-yellow-400"
                 >
                   {SYMBOL_OPTIONS.map((s) => (
                     <option key={s.symbol} value={s.symbol} className="bg-gray-900 text-white">
@@ -380,7 +380,7 @@ export default function OrdersPage() {
                     onClick={() => setOrderType(t.type)}
                     className={`py-1.5 px-2 rounded text-xs font-medium border text-center transition-all ${
                       orderType === t.type
-                        ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-bold'
+                        ? 'bg-yellow-400/20 text-yellow-300 border-yellow-400/40 font-bold'
                         : 'bg-white/3 text-muted-foreground border-white/5 hover:text-white'
                     }`}
                   >
@@ -403,7 +403,7 @@ export default function OrdersPage() {
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   placeholder="0.25"
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono text-xs focus:ring-1 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono text-xs focus:ring-1 focus:ring-yellow-400"
                 />
               </div>
 
@@ -418,7 +418,7 @@ export default function OrdersPage() {
                   value={orderType === 'MARKET' ? '' : limitPrice}
                   onChange={(e) => setLimitPrice(e.target.value)}
                   placeholder={orderType === 'MARKET' ? 'Market price' : 'e.g. 80100'}
-                  className={`w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono text-xs focus:ring-1 focus:ring-cyan-400 ${
+                  className={`w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono text-xs focus:ring-1 focus:ring-yellow-400 ${
                     orderType === 'MARKET' ? 'opacity-40 cursor-not-allowed' : ''
                   }`}
                 />
@@ -501,7 +501,7 @@ export default function OrdersPage() {
 
                   <div className="p-2.5 rounded bg-white/3 border border-white/5">
                     <span className="text-[10px] text-muted-foreground block font-sans">Total Cost</span>
-                    <span className="text-cyan-300 font-bold text-sm">
+                    <span className="text-yellow-300 font-bold text-sm">
                       {formatCurrency(Number(simulationResult.estimatedTotal), currentMeta.currency)}
                     </span>
                   </div>
@@ -545,7 +545,7 @@ export default function OrdersPage() {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 text-cyan-400" />
+                <Clock className="w-4 h-4 text-yellow-400" />
                 Paper Order History & Active Orders
               </h3>
               <p className="text-xs text-muted-foreground">
@@ -597,7 +597,7 @@ export default function OrdersPage() {
                     <td className="py-2.5 px-3 text-muted-foreground">
                       {o.limitPrice ? o.limitPrice.toLocaleString() : '—'}
                     </td>
-                    <td className="py-2.5 px-3 text-cyan-300 font-semibold">
+                    <td className="py-2.5 px-3 text-yellow-300 font-semibold">
                       {o.averageExecutionPrice ? o.averageExecutionPrice.toLocaleString() : '—'}
                     </td>
                     <td className="py-2.5 px-3">
@@ -606,7 +606,7 @@ export default function OrdersPage() {
                           o.status === 'FILLED'
                             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                             : o.status === 'OPEN'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                            ? 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/30'
                             : o.status === 'PARTIALLY_FILLED'
                             ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                             : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'

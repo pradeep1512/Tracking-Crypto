@@ -95,7 +95,7 @@ function ResetPasswordContent() {
           <div className="pt-2">
             <Link
               href="/forgot-password"
-              className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-medium text-xs hover:bg-cyan-500/30 transition-colors"
+              className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 font-medium text-xs hover:bg-yellow-400/30 transition-colors"
             >
               Request a New Recovery Link
             </Link>
@@ -149,7 +149,7 @@ function ResetPasswordContent() {
         <div className="pt-2 text-center text-xs text-muted-foreground">
           <Link
             href="/signin"
-            className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-yellow-400 hover:text-yellow-300 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Sign In</span>

@@ -171,7 +171,7 @@ export default function ActiveTradingPage() {
         <div className="space-y-4">
           <div className="glass-card p-5 space-y-4">
             <h3 className="font-bold text-white text-sm flex items-center gap-2">
-              <Zap className="w-4 h-4 text-cyan-400" />
+              <Zap className="w-4 h-4 text-yellow-400" />
               <span>Authorized Broker Integrations</span>
             </h3>
 
@@ -188,7 +188,7 @@ export default function ActiveTradingPage() {
                     className={cn(
                       'w-full p-3.5 rounded-xl border text-left transition-all',
                       isSelected
-                        ? 'bg-cyan-500/10 border-cyan-500/40 shadow'
+                        ? 'bg-yellow-400/10 border-yellow-400/40 shadow'
                         : 'glass border-transparent hover:border-white/10'
                     )}
                   >
@@ -233,11 +233,11 @@ export default function ActiveTradingPage() {
 
         {/* Right 2 Cols: Order Ticket & Execution Preview */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="glass-card p-6 border-cyan-500/30 space-y-5">
+          <div className="glass-card p-6 border-yellow-500/30 space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 text-cyan-400" />
+                  <ShoppingCart className="w-5 h-5 text-yellow-400" />
                   <span>Order Execution Ticket</span>
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -250,7 +250,7 @@ export default function ActiveTradingPage() {
                 <button
                   type="button"
                   onClick={() => setIsPaperTrade(true)}
-                  className={cn('px-3 py-1 rounded font-bold transition-all', isPaperTrade ? 'bg-cyan-500 text-black' : 'text-muted-foreground')}
+                  className={cn('px-3 py-1 rounded font-bold transition-all', isPaperTrade ? 'bg-yellow-400 text-black' : 'text-muted-foreground')}
                 >
                   PAPER MODE
                 </button>
@@ -277,7 +277,7 @@ export default function ActiveTradingPage() {
                   <select
                     value={selectedPortfolioId}
                     onChange={(e) => setSelectedPortfolioId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-yellow-400"
                   >
                     {portfolios.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -296,7 +296,7 @@ export default function ActiveTradingPage() {
                       setCategory(c);
                       setSymbol(c === 'CRYPTO' ? 'BTCUSD' : 'C-BTC-80000-021126');
                     }}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-yellow-400"
                   >
                     <option value="CRYPTO">Spot & Perp Crypto</option>
                     <option value="OPTION">Delta Options Contract</option>
@@ -309,7 +309,7 @@ export default function ActiveTradingPage() {
                     type="text"
                     value={symbol}
                     onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono font-bold text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono font-bold text-white focus:outline-none focus:border-yellow-400"
                   />
                 </div>
               </div>
@@ -340,7 +340,7 @@ export default function ActiveTradingPage() {
                   <select
                     value={orderType}
                     onChange={(e) => setOrderType(e.target.value as OrderType)}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-yellow-400"
                   >
                     <option value="MARKET">MARKET</option>
                     <option value="LIMIT">LIMIT</option>
@@ -356,7 +356,7 @@ export default function ActiveTradingPage() {
                     min="0.01"
                     value={quantity}
                     onChange={(e) => setQuantity(parseFloat(e.target.value) || 1)}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-yellow-400"
                   />
                 </div>
 
@@ -367,7 +367,7 @@ export default function ActiveTradingPage() {
                     value={price}
                     onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
                     disabled={orderType === 'MARKET'}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white disabled:opacity-40 focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white disabled:opacity-40 focus:outline-none focus:border-yellow-400"
                   />
                 </div>
               </div>
@@ -379,7 +379,7 @@ export default function ActiveTradingPage() {
                     type="number"
                     value={stopLoss}
                     onChange={(e) => setStopLoss(parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-rose-400 focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-rose-400 focus:outline-none focus:border-yellow-400"
                   />
                 </div>
 
@@ -389,7 +389,7 @@ export default function ActiveTradingPage() {
                     type="number"
                     value={takeProfit}
                     onChange={(e) => setTakeProfit(parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-emerald-400 focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-emerald-400 focus:outline-none focus:border-yellow-400"
                   />
                 </div>
               </div>

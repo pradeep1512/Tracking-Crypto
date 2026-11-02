@@ -99,7 +99,7 @@ export default function ExpiryCalendarPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-white tracking-tight">Contract Expiry & Rollover Calendar</h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-400/10 border border-yellow-400/20 text-yellow-400">
               Exchange Lifecycle Engine
             </span>
           </div>
@@ -124,7 +124,7 @@ export default function ExpiryCalendarPage() {
               className={cn(
                 'px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border',
                 filterCategory === cat.id
-                  ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/40 shadow'
+                  ? 'bg-yellow-400/15 text-yellow-300 border-yellow-400/40 shadow'
                   : 'glass border-transparent text-muted-foreground hover:text-white hover:border-white/10'
               )}
             >
@@ -140,7 +140,7 @@ export default function ExpiryCalendarPage() {
             placeholder="Search expiring contract..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white placeholder-muted-foreground focus:outline-none focus:border-cyan-500/50"
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white placeholder-muted-foreground focus:outline-none focus:border-yellow-400/50"
           />
         </div>
       </div>
@@ -225,7 +225,7 @@ export default function ExpiryCalendarPage() {
                             setSelectedItemForRoll(item);
                             setTargetExpiry('2026-12-05');
                           }}
-                          className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500 text-cyan-300 hover:text-black border border-cyan-500/30 font-bold text-xs transition-colors flex items-center gap-1.5 ml-auto"
+                          className="px-3 py-1.5 rounded-lg bg-yellow-400/15 hover:bg-yellow-400 text-yellow-300 hover:text-black border border-yellow-400/30 font-bold text-xs transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
                         >
                           <Repeat className="w-3.5 h-3.5" />
                           <span>Rollover</span>
@@ -246,10 +246,10 @@ export default function ExpiryCalendarPage() {
       {/* Rollover Modal */}
       {selectedItemForRoll && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="glass-card max-w-md w-full p-6 border-cyan-500/40 space-y-5 animate-in zoom-in-95 duration-150">
+          <div className="glass-card max-w-md w-full p-6 border-yellow-500/40 space-y-5 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Repeat className="w-5 h-5 text-cyan-400" />
+                <Repeat className="w-5 h-5 text-yellow-400" />
                 <span>Contract Rollover Assistant</span>
               </h3>
               <button onClick={() => setSelectedItemForRoll(null)} className="text-muted-foreground hover:text-white">
@@ -270,11 +270,11 @@ export default function ExpiryCalendarPage() {
                   type="date"
                   value={targetExpiry}
                   onChange={(e) => setTargetExpiry(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-yellow-400"
                 />
               </div>
 
-              <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
+              <div className="p-3 rounded-lg bg-yellow-400/10 border border-yellow-400/20 text-yellow-300">
                 <p className="font-bold">Estimated Rollover Spread: $35.00 (0.04%)</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
                   Near month will be closed at market and next month re-opened with zero downtime.
@@ -301,9 +301,9 @@ export default function ExpiryCalendarPage() {
                 type="button"
                 onClick={handleExecuteRollover}
                 disabled={rolloverLoading}
-                className="px-5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-colors shadow flex items-center gap-2"
+                className="px-5 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs transition-colors shadow flex items-center gap-2 cursor-pointer"
               >
-                {rolloverLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Repeat className="w-4 h-4" />}
+                {rolloverLoading ? <RefreshCw className="w-4 h-4 animate-spin text-black" /> : <Repeat className="w-4 h-4 text-black" />}
                 <span>Authorize & Execute Rollover</span>
               </button>
             </div>

@@ -97,7 +97,7 @@ export default function MarketsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-white">Live Markets & Order Book</h1>
-            <span className="px-2 py-0.5 text-xs font-semibold rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <span className="px-2 py-0.5 text-xs font-semibold rounded bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
               Delta Exchange Live Feed
             </span>
           </div>
@@ -135,7 +135,7 @@ export default function MarketsPage() {
               onClick={() => setExchangeId('delta')}
               className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
                 exchangeId === 'delta'
-                  ? 'bg-cyan-500 text-black shadow-sm font-semibold'
+                  ? 'bg-yellow-400 text-black shadow-sm font-semibold'
                   : 'text-muted-foreground hover:text-white'
               }`}
             >
@@ -168,7 +168,7 @@ export default function MarketsPage() {
               onClick={() => setSelectedSymbol(opt.symbol)}
               className={`glass-card p-3 text-left transition-all relative overflow-hidden ${
                 isSelected
-                  ? 'ring-2 ring-cyan-500/60 bg-cyan-500/5'
+                  ? 'ring-2 ring-yellow-400/60 bg-yellow-400/5'
                   : 'hover:bg-white/5 opacity-80 hover:opacity-100'
               } ${flash === 'up' ? 'flash-up' : flash === 'down' ? 'flash-down' : ''}`}
             >
@@ -185,7 +185,7 @@ export default function MarketsPage() {
               </p>
               <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-1">
                 <span>Spread:</span>
-                <span className="font-mono text-cyan-400">
+                <span className="font-mono text-yellow-400">
                   {t ? `${t.spreadPercentage.toFixed(3)}%` : '—'}
                 </span>
               </div>
@@ -245,7 +245,7 @@ export default function MarketsPage() {
 
               <div className="space-y-1 pt-2 border-t border-white/5">
                 <span className="text-muted-foreground">Spread</span>
-                <p className="font-mono text-cyan-400">
+                <p className="font-mono text-yellow-400">
                   {activeTicker ? `${formatCurrency(activeTicker.spread, currentSymbolMeta.currency)} (${activeTicker.spreadPercentage.toFixed(3)}%)` : '—'}
                 </p>
               </div>
@@ -262,7 +262,7 @@ export default function MarketsPage() {
             <div className="pt-2 flex flex-col gap-2">
               <Link
                 href={`/dashboard/price-gap?symbol=${selectedSymbol}&exchange=${exchangeId}`}
-                className="w-full py-2.5 px-3 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                className="w-full py-2.5 px-3 rounded-lg bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/30 text-yellow-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
               >
                 Analyze Price Gap for {selectedSymbol}
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -281,7 +281,7 @@ export default function MarketsPage() {
           {/* Latency & Telemetry Box */}
           <div className="glass-card p-4 space-y-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-white">
-              <Activity className="w-4 h-4 text-cyan-400" />
+              <Activity className="w-4 h-4 text-yellow-400" />
               Stream Freshness & Telemetry
             </div>
 

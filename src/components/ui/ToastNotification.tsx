@@ -68,11 +68,11 @@ export function ToastNotification({
       icon: <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />,
     },
     info: {
-      border: 'border-cyan-500/40',
-      bg: 'bg-zinc-950/90 shadow-cyan-500/10',
-      iconBg: 'bg-cyan-500/15 text-cyan-400',
-      title: 'text-cyan-300',
-      icon: <Info className="w-5 h-5 text-cyan-400 shrink-0" />,
+      border: 'border-yellow-400/40',
+      bg: 'bg-zinc-950/90 shadow-yellow-500/10',
+      iconBg: 'bg-yellow-400/15 text-yellow-400',
+      title: 'text-yellow-300',
+      icon: <Info className="w-5 h-5 text-yellow-400 shrink-0" />,
     },
   }[type];
 

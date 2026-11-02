@@ -39,14 +39,14 @@ export function PasswordInput({
           className={`w-full px-4 py-2.5 pr-11 rounded-lg bg-white/5 border text-white placeholder:text-muted-foreground/50 text-sm focus:outline-none transition-all duration-200 ${
             error
               ? 'border-red-500/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-              : 'border-white/10 focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 hover:border-white/20'
+              : 'border-white/10 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 hover:border-white/20'
           } ${className}`}
           {...props}
         />
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white p-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white p-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400/30"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
           tabIndex={-1}
         >

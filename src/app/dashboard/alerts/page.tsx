@@ -153,7 +153,7 @@ export default function AlertsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-white">Alerts & Notification Engine</h1>
-            <span className="px-2 py-0.5 text-xs font-semibold rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <span className="px-2 py-0.5 text-xs font-semibold rounded bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
               Phase 4 Dispatcher
             </span>
           </div>
@@ -176,10 +176,9 @@ export default function AlertsPage() {
 
           <button
             onClick={() => setShowModal(true)}
-            className="py-2 px-4 rounded-lg text-xs font-semibold text-black transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center gap-1.5"
-            style={{ background: 'linear-gradient(135deg, hsl(199, 89%, 48%), hsl(221, 83%, 53%))' }}
+            className="py-2 px-4 rounded-lg text-xs font-bold text-black bg-yellow-400 hover:bg-yellow-300 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center gap-1.5 cursor-pointer shadow-lg shadow-yellow-500/10"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-black" />
             New Alert Rule
           </button>
         </div>
@@ -189,7 +188,7 @@ export default function AlertsPage() {
       <div className="glass-card p-5 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <Bell className="w-4 h-4 text-cyan-400" />
+            <Bell className="w-4 h-4 text-yellow-400" />
             Active Alert Notifications
             {unreadCount > 0 && (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
@@ -213,7 +212,7 @@ export default function AlertsPage() {
               key={alert.id}
               className={`p-3.5 rounded-lg border transition-all flex items-start justify-between gap-4 ${
                 !alert.isRead
-                  ? 'bg-cyan-500/5 border-cyan-500/30'
+                  ? 'bg-yellow-400/5 border-yellow-400/30'
                   : 'bg-white/3 border-white/5 opacity-80 hover:opacity-100'
               }`}
             >
@@ -224,7 +223,7 @@ export default function AlertsPage() {
                   ) : alert.severity === 'WARNING' ? (
                     <AlertTriangle className="w-4 h-4 text-amber-400" />
                   ) : (
-                    <Info className="w-4 h-4 text-cyan-400" />
+                    <Info className="w-4 h-4 text-yellow-400" />
                   )}
                 </div>
 
@@ -237,7 +236,7 @@ export default function AlertsPage() {
                           ? 'bg-rose-500/20 text-rose-300'
                           : alert.severity === 'WARNING'
                           ? 'bg-amber-500/20 text-amber-300'
-                          : 'bg-cyan-500/20 text-cyan-300'
+                          : 'bg-yellow-400/20 text-yellow-300'
                       }`}
                     >
                       {alert.severity}
@@ -246,7 +245,7 @@ export default function AlertsPage() {
                       {alert.alertType.replace(/_/g, ' ')}
                     </span>
                     {!alert.isRead && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 pulse-dot" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 pulse-dot" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">{alert.message}</p>
@@ -311,7 +310,7 @@ export default function AlertsPage() {
           <div className="glass-card max-w-md w-full p-6 space-y-4 border border-white/10">
             <div className="flex justify-between items-center">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Plus className="w-4 h-4 text-cyan-400" />
+                <Plus className="w-4 h-4 text-yellow-400" />
                 Create New Alert Rule
               </h3>
               <button
@@ -328,7 +327,7 @@ export default function AlertsPage() {
                 <select
                   value={newType}
                   onChange={(e) => setNewType(e.target.value as AlertType)}
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-1 focus:ring-cyan-400"
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-1 focus:ring-yellow-400"
                 >
                   {ALERT_TYPES.map((t) => (
                     <option key={t.type} value={t.type} className="bg-gray-900 text-white">
@@ -344,7 +343,7 @@ export default function AlertsPage() {
                   <select
                     value={newSymbol}
                     onChange={(e) => setNewSymbol(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-1 focus:ring-cyan-400"
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-1 focus:ring-yellow-400"
                   >
                     {SYMBOLS.map((s) => (
                       <option key={s} value={s} className="bg-gray-900 text-white">
@@ -365,7 +364,7 @@ export default function AlertsPage() {
                     onChange={(e) => setNewThreshold(e.target.value)}
                     placeholder={selectedMeta.placeholder}
                     required
-                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono focus:ring-1 focus:ring-cyan-400"
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono focus:ring-1 focus:ring-yellow-400"
                   />
                 </div>
               </div>
@@ -376,9 +375,9 @@ export default function AlertsPage() {
                   <select
                     value={newSeverity}
                     onChange={(e) => setNewSeverity(e.target.value as AlertSeverity)}
-                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-1 focus:ring-cyan-400"
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-1 focus:ring-yellow-400"
                   >
-                    <option value="INFO" className="bg-gray-900 text-cyan-300">INFO</option>
+                    <option value="INFO" className="bg-gray-900 text-yellow-300">INFO</option>
                     <option value="WARNING" className="bg-gray-900 text-amber-300">WARNING</option>
                     <option value="CRITICAL" className="bg-gray-900 text-rose-300">CRITICAL</option>
                   </select>
@@ -390,7 +389,7 @@ export default function AlertsPage() {
                     type="number"
                     value={newCooldown}
                     onChange={(e) => setNewCooldown(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono focus:ring-1 focus:ring-cyan-400"
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white font-mono focus:ring-1 focus:ring-yellow-400"
                   />
                 </div>
               </div>
@@ -406,7 +405,7 @@ export default function AlertsPage() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="py-2 px-4 rounded-lg font-semibold text-black bg-cyan-400 hover:bg-cyan-300"
+                  className="py-2 px-4 rounded-lg font-semibold text-black bg-yellow-400 hover:bg-yellow-300 cursor-pointer"
                 >
                   {creating ? 'Creating...' : 'Create Rule'}
                 </button>

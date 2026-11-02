@@ -76,20 +76,20 @@ export function ExecutionEstimatorChart({
               key={pt.multiplier}
               className={`p-2 rounded-lg transition-all text-xs font-mono ${
                 isBase
-                  ? 'bg-cyan-500/10 border border-cyan-500/30 ring-1 ring-cyan-500/40'
+                  ? 'bg-yellow-400/10 border border-yellow-400/30 ring-1 ring-yellow-400/40'
                   : 'bg-white/3 hover:bg-white/5 border border-white/5'
               }`}
             >
               <div className="flex justify-between items-center mb-1 text-[11px]">
                 <div className="flex items-center gap-2">
-                  <span className={isBase ? 'text-cyan-300 font-bold' : 'text-white'}>
+                  <span className={isBase ? 'text-yellow-300 font-bold' : 'text-white'}>
                     {pt.quantity} {orderBook.symbol.replace(/USDT|INR/g, '')}
                   </span>
                   <span className="text-muted-foreground text-[10px]">
                     ({pt.multiplier}x size)
                   </span>
                   {isBase && (
-                    <span className="px-1.5 py-0.2 rounded text-[9px] bg-cyan-400 text-black font-bold">
+                    <span className="px-1.5 py-0.2 rounded text-[9px] bg-yellow-400 text-black font-bold">
                       YOUR ORDER
                     </span>
                   )}
@@ -122,7 +122,7 @@ export function ExecutionEstimatorChart({
                       ? 'bg-rose-500'
                       : pt.slippagePct > 0.05
                       ? 'bg-amber-400'
-                      : 'bg-cyan-400'
+                      : 'bg-yellow-400'
                   }`}
                 />
               </div>

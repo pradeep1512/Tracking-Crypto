@@ -5,20 +5,19 @@ export default function LandingPage() {
     <main className="min-h-screen bg-background overflow-hidden">
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, hsl(199,89%,48%) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle, hsl(262,83%,58%) 0%, transparent 70%)' }} />
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-10"
+          style={{ background: 'radial-gradient(circle, #FFE600 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-10"
+          style={{ background: 'radial-gradient(circle, #FFE600 0%, transparent 70%)' }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-5"
-          style={{ background: 'radial-gradient(circle, hsl(221,83%,53%) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, #FACC15 0%, transparent 70%)' }} />
       </div>
 
       {/* Nav */}
       <nav className="relative z-10 flex items-center justify-between px-8 py-6 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, hsl(199,89%,48%), hsl(221,83%,53%))' }}>
-            <span className="text-white font-bold text-sm">TC</span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-yellow-400 text-black shadow-md shadow-yellow-500/20 font-black">
+            <span className="text-black font-extrabold text-sm">TC</span>
           </div>
           <span className="text-xl font-bold tracking-tight">
             <span className="gradient-text">Tracking</span>
@@ -31,8 +30,7 @@ export default function LandingPage() {
             Sign In
           </Link>
           <Link href="/signup"
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 hover:scale-105"
-            style={{ background: 'linear-gradient(135deg, hsl(199,89%,48%), hsl(221,83%,53%))' }}>
+            className="px-4 py-2 rounded-lg text-sm font-bold text-black bg-yellow-400 hover:bg-yellow-300 transition-all hover:scale-105 shadow-md shadow-yellow-500/20">
             Get Started
           </Link>
         </div>
@@ -40,8 +38,8 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative z-10 flex flex-col items-center justify-center text-center px-8 pt-24 pb-20">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs font-medium mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 pulse-dot" />
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-yellow-400/30 bg-yellow-400/10 text-yellow-400 text-xs font-medium mb-8">
+          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 pulse-dot" />
           Real-Time Market Intelligence
         </div>
 
@@ -86,8 +84,7 @@ export default function LandingPage() {
 
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <Link href="/signup"
-            className="px-8 py-3.5 rounded-xl text-white font-semibold transition-all hover:scale-105 hover:shadow-xl glow-cyan"
-            style={{ background: 'linear-gradient(135deg, hsl(199,89%,48%), hsl(221,83%,53%))' }}>
+            className="px-8 py-3.5 rounded-xl text-black font-extrabold bg-yellow-400 hover:bg-yellow-300 transition-all hover:scale-105 hover:shadow-xl shadow-yellow-500/20 glow-yellow">
             Start Tracking Free
           </Link>
           <Link href="/signin"
@@ -113,7 +110,7 @@ export default function LandingPage() {
               icon: '⚡',
               title: 'Real-Time Price Gap Detection',
               desc: 'Compares reference price vs best bid/ask vs estimated execution price with VWAP analysis.',
-              color: 'cyan',
+              color: 'yellow',
             },
             {
               icon: '📊',
@@ -131,7 +128,7 @@ export default function LandingPage() {
               icon: '🔗',
               title: 'WebSocket Streaming',
               desc: 'Persistent real-time connections with automatic reconnect, heartbeat, and stale-data detection.',
-              color: 'blue',
+              color: 'yellow',
             },
             {
               icon: '🛡️',

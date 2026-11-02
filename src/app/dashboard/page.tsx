@@ -32,17 +32,17 @@ function StatCard({
   subtitle,
   icon: Icon,
   trend,
-  color = 'cyan',
+  color = 'yellow',
 }: {
   title: string;
   value: string;
   subtitle?: string;
   icon: React.ComponentType<{ className?: string }>;
   trend?: 'up' | 'down' | 'neutral';
-  color?: 'cyan' | 'emerald' | 'rose' | 'amber' | 'purple';
+  color?: 'yellow' | 'emerald' | 'rose' | 'amber' | 'purple';
 }) {
   const colors = {
-    cyan: 'text-yellow-400 bg-yellow-500/15 border-yellow-500/30 shadow-[0_0_10px_rgba(250,204,21,0.15)]',
+    yellow: 'text-yellow-400 bg-yellow-500/15 border-yellow-500/30 shadow-[0_0_10px_rgba(250,204,21,0.15)]',
     emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
     rose: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
     amber: 'text-yellow-400 bg-yellow-500/15 border-yellow-500/30',
@@ -134,7 +134,7 @@ function MarketTelemetryPanel({ ticker }: { ticker: Ticker | null }) {
     <div className="glass-card p-5 space-y-4">
       <div className="flex items-center justify-between border-b border-white/5 pb-3">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-cyan-400" />
+          <Activity className="w-4 h-4 text-yellow-400" />
           <h3 className="font-semibold text-white text-sm">Delta Market Telemetry</h3>
         </div>
         <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono font-bold">
@@ -149,7 +149,7 @@ function MarketTelemetryPanel({ ticker }: { ticker: Ticker | null }) {
         </div>
         <div className="flex justify-between items-center py-1 border-b border-white/5">
           <span className="text-muted-foreground">Last Traded Price</span>
-          <span className="font-bold text-cyan-400 text-sm">${ticker.lastPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <span className="font-bold text-yellow-400 text-sm">${ticker.lastPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </div>
         <div className="flex justify-between items-center py-1 border-b border-white/5">
           <span className="text-muted-foreground">Exchange Mark Price</span>
@@ -179,9 +179,9 @@ function MarketTelemetryPanel({ ticker }: { ticker: Ticker | null }) {
       <div className="pt-2">
         <Link
           href="/dashboard/options"
-          className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold hover:bg-cyan-500/30 transition-all cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-yellow-400/15 text-yellow-300 border border-yellow-400/40 text-xs font-bold hover:bg-yellow-400/25 transition-all shadow-[0_0_12px_rgba(250,204,21,0.15)] cursor-pointer"
         >
-          <Layers className="w-3.5 h-3.5" />
+          <Layers className="w-3.5 h-3.5 text-yellow-400" />
           <span>Trade {ticker.symbol.replace('USD', '')} Options Chain →</span>
         </Link>
       </div>
@@ -202,7 +202,7 @@ function OrderBookPanel({ orderBook }: { orderBook: OrderBook | null }) {
     <div className="glass-card p-5 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-white text-sm flex items-center gap-2">
-          <ArrowUpDown className="w-4 h-4 text-cyan-400" />
+          <ArrowUpDown className="w-4 h-4 text-yellow-400" />
           <span>Delta L2 Order Book</span>
         </h3>
         <span className="text-[11px] font-mono text-muted-foreground">
@@ -372,7 +372,7 @@ export default function DashboardOverviewPage() {
           subtitle={selectedTicker ? `Spread: $${selectedTicker.spread.toFixed(2)}` : undefined}
           icon={TrendingUp}
           trend="up"
-          color="cyan"
+          color="yellow"
         />
         <StatCard
           title="Exchange Mark Price"

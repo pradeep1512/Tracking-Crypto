@@ -162,12 +162,12 @@ export default function SignUpPage() {
               id="acceptTerms"
               checked={form.acceptTerms}
               onChange={(e) => setForm({ ...form, acceptTerms: e.target.checked })}
-              className="mt-0.5 rounded border-white/20 bg-white/5 text-cyan-500 focus:ring-cyan-500/30"
+              className="mt-0.5 rounded border-white/20 bg-white/5 text-yellow-400 focus:ring-yellow-400/30 accent-yellow-400"
             />
             <span>
               I accept the{' '}
-              <span className="text-cyan-400 hover:underline">Terms of Service</span> and{' '}
-              <span className="text-cyan-400 hover:underline">Privacy Policy</span>. I acknowledge paper trading is default.
+              <span className="text-yellow-400 hover:underline">Terms of Service</span> and{' '}
+              <span className="text-yellow-400 hover:underline">Privacy Policy</span>. I acknowledge paper trading is default.
             </span>
           </label>
           {fieldErrors.acceptTerms && (
@@ -182,7 +182,7 @@ export default function SignUpPage() {
         <div className="pt-2 text-center text-xs text-muted-foreground space-y-2">
           <div>
             Already have an account?{' '}
-            <Link href="/signin" className="text-cyan-400 hover:text-cyan-300 font-medium">
+            <Link href="/signin" className="text-yellow-400 hover:text-yellow-300 font-medium">
               Sign In
             </Link>
           </div>
