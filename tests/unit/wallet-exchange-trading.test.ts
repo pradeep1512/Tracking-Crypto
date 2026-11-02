@@ -170,8 +170,8 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
       async () => {
         await exchangeTradingService.connectExchange({
           userId: testUserId,
-          brokerType: 'BINANCE',
-          displayName: 'Incomplete Binance',
+          brokerType: 'DELTA_EXCHANGE',
+          displayName: 'Incomplete Delta Exchange',
           accountUserId: '',
           apiKey: '',
           apiSecret: '',
@@ -186,31 +186,31 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
     const exchangeBalances = await exchangeTradingService.getAllExchangeBalances();
     assert.ok(exchangeBalances.length > 0);
 
-    const coindcx = exchangeBalances.find((e) => e.exchangeName === 'CoinDCX');
-    assert.ok(coindcx);
-    assert.ok(coindcx.availableBalance > 0);
-    assert.strictEqual(coindcx.nativeCurrency, 'INR');
+    const delta = exchangeBalances.find((e) => e.exchangeName === 'Delta Exchange India');
+    assert.ok(delta);
+    assert.ok(delta.availableBalance > 0);
+    assert.strictEqual(delta.nativeCurrency, 'USD');
 
     const wallet = await walletService.getWallet(testUserId);
 
     // Critical assertion: Exchange balance must NEVER match or overwrite TrackingCrypt application wallet balance
-    assert.notStrictEqual(coindcx.availableBalance, wallet.walletBalance);
+    assert.notStrictEqual(delta.availableBalance, wallet.walletBalance);
   });
 
-  // ─── 8. Order Preview & INR-to-Quantity Computation ───────────────────────
-  it('8. Computes executable quantity and estimated fees from an INR investment amount', async () => {
+  // ─── 8. Order Preview & USD-to-Quantity Computation ───────────────────────
+  it('8. Computes executable quantity and estimated fees from a USD investment amount', async () => {
     const preview = await exchangeTradingService.previewOrder({
-      brokerId: 'broker_coindcx_01',
-      tradingPair: 'BTCUSDT',
+      brokerId: 'broker_delta_01',
+      tradingPair: 'BTCUSD',
       side: 'BUY',
       orderType: 'MARKET',
-      investmentAmountINR: 5000,
+      investmentAmountUSD: 5000,
     });
 
-    assert.strictEqual(preview.tradingPair, 'BTCUSDT');
-    assert.strictEqual(preview.estimatedOrderValueINR, 5000);
+    assert.strictEqual(preview.tradingPair, 'BTCUSD');
+    assert.strictEqual(preview.estimatedOrderValueUSD, 5000);
     assert.ok(preview.quantity > 0);
-    assert.ok(preview.applicableFeesINR > 0);
+    assert.ok((preview.applicableFeesUSD ?? 0) > 0);
     assert.strictEqual(preview.isExecutable, true);
     assert.ok(preview.estimatedRemainingBalance < preview.availableExchangeBalance);
   });
@@ -219,15 +219,15 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
   it('9. Executes market order on exchange with generated client and exchange order IDs', async () => {
     liveTradingService.updateConfig({ isLiveTradingEnabled: true });
     const orderResult = await exchangeTradingService.executeLiveOrder(testUserId, {
-      brokerId: 'broker_coindcx_01',
-      tradingPair: 'BTCUSDT',
+      brokerId: 'broker_delta_01',
+      tradingPair: 'BTCUSD',
       side: 'BUY',
       orderType: 'MARKET',
-      investmentAmountINR: 5000,
+      investmentAmountUSD: 5000,
     });
 
     assert.strictEqual(orderResult.success, true);
-    assert.ok(orderResult.exchangeOrderId.startsWith('ex_coindcx_'));
+    assert.ok(orderResult.exchangeOrderId.startsWith('ex_delta_'));
     assert.strictEqual(orderResult.status, 'FILLED');
     assert.strictEqual(orderResult.filledQuantity, orderResult.requestedQuantity);
     assert.ok(orderResult.averageExecutionPrice > 0);
@@ -238,11 +238,11 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
     await assert.rejects(
       async () => {
         await exchangeTradingService.executeLiveOrder(testUserId, {
-          brokerId: 'broker_coindcx_01',
-          tradingPair: 'BTCUSDT',
+          brokerId: 'broker_delta_01',
+          tradingPair: 'BTCUSD',
           side: 'BUY',
           orderType: 'MARKET',
-          investmentAmountINR: 500000000, // ₹50 Crore (exceeds balance)
+          investmentAmountUSD: 500000000, // $500M (exceeds balance)
         });
       },
       /Insufficient balance/
@@ -288,7 +288,7 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
 
   // ─── 13. Order Cancellation on Exchange ───────────────────────────────────
   it('13. Cancels eligible open order and restores allocated exchange margin', async () => {
-    const cancelResult = await exchangeTradingService.cancelOrder('broker_coindcx_01', 'non_existent_ord');
+    const cancelResult = await exchangeTradingService.cancelOrder('broker_delta_01', 'non_existent_ord');
     assert.strictEqual(cancelResult.success, false);
     assert.ok(cancelResult.message.includes('not found'));
   });
@@ -315,7 +315,7 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
       name: 'Exchange Execution Portfolio',
       description: 'Connected to live exchange execution',
       category: 'CRYPTO',
-      currency: 'INR',
+      currency: 'USD',
       initialCapital: 100000,
       maxInvestmentLimit: 80000,
       riskLimitPercentage: 2.0,
@@ -325,11 +325,11 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
 
     // Execute order linked to this portfolio
     const executed = await exchangeTradingService.executeLiveOrder(testUserId, {
-      brokerId: 'broker_coindcx_01',
-      tradingPair: 'BTCUSDT',
+      brokerId: 'broker_delta_01',
+      tradingPair: 'BTCUSD',
       side: 'BUY',
       orderType: 'MARKET',
-      investmentAmountINR: 10000,
+      investmentAmountUSD: 2500,
       portfolioId: portfolio.id,
     });
     assert.strictEqual(executed.status, 'FILLED');
@@ -337,28 +337,28 @@ describe('Project: TrackingCrypt — Wallet, Payments & Exchange Trading Engine'
     const updatedPortfolio = portfolioService.getPortfolioById(portfolio.id);
     assert.ok(updatedPortfolio);
     assert.ok(updatedPortfolio.positions.length > 0);
-    assert.strictEqual(updatedPortfolio.positions[0].symbol, 'BTCUSDT');
+    assert.strictEqual(updatedPortfolio.positions[0].symbol, 'BTCUSD');
   });
 
   // ─── 16. Unauthorized Trading Attempts Rejection ──────────────────────────
   it('16. Strictly denies live order execution when exchange account is disconnected', async () => {
-    exchangeTradingService.disconnectExchange('broker_coindcx_01');
+    exchangeTradingService.disconnectExchange('broker_delta_01');
 
     await assert.rejects(
       async () => {
         await exchangeTradingService.executeLiveOrder(testUserId, {
-          brokerId: 'broker_coindcx_01',
-          tradingPair: 'BTCUSDT',
+          brokerId: 'broker_delta_01',
+          tradingPair: 'BTCUSD',
           side: 'BUY',
           orderType: 'MARKET',
-          investmentAmountINR: 1000,
+          investmentAmountUSD: 1000,
         });
       },
       /disconnected/
     );
 
     // Reconnect for system health
-    await exchangeTradingService.verifyExchangeConnection('broker_coindcx_01');
+    await exchangeTradingService.verifyExchangeConnection('broker_delta_01');
   });
 
   // ─── 17. Bank-to-Wallet: Exact Rupee to Paise Conversion ──────────────────

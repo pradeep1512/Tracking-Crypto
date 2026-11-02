@@ -20,17 +20,16 @@ import { formatCurrency, formatPercent, formatLatency } from '@/lib/utils/api';
 import type { Ticker } from '@/types';
 
 const SYMBOL_OPTIONS = [
-  { symbol: 'BTCUSDT', name: 'Bitcoin / USDT', currency: 'USDT' },
-  { symbol: 'ETHUSDT', name: 'Ethereum / USDT', currency: 'USDT' },
-  { symbol: 'SOLUSDT', name: 'Solana / USDT', currency: 'USDT' },
-  { symbol: 'BNBUSDT', name: 'BNB / USDT', currency: 'USDT' },
-  { symbol: 'BTCINR', name: 'Bitcoin / INR (Est.)', currency: 'INR' },
-  { symbol: 'ETHINR', name: 'Ethereum / INR (Est.)', currency: 'INR' },
+  { symbol: 'BTCUSD', name: 'Bitcoin / USD', currency: 'USD' },
+  { symbol: 'ETHUSD', name: 'Ethereum / USD', currency: 'USD' },
+  { symbol: 'SOLUSD', name: 'Solana / USD', currency: 'USD' },
+  { symbol: 'XRPUSD', name: 'XRP / USD', currency: 'USD' },
+  { symbol: 'DOGEUSD', name: 'Dogecoin / USD', currency: 'USD' },
 ];
 
 export default function MarketsPage() {
-  const [exchangeId, setExchangeId] = useState<'binance' | 'mock'>('binance');
-  const [selectedSymbol, setSelectedSymbol] = useState<string>('BTCUSDT');
+  const [exchangeId, setExchangeId] = useState<'delta' | 'mock'>('delta');
+  const [selectedSymbol, setSelectedSymbol] = useState<string>('BTCUSD');
   const [allTickers, setAllTickers] = useState<Record<string, Ticker>>({});
   const [priceFlash, setPriceFlash] = useState<Record<string, 'up' | 'down' | null>>({});
 
@@ -99,11 +98,11 @@ export default function MarketsPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-white">Live Markets & Order Book</h1>
             <span className="px-2 py-0.5 text-xs font-semibold rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              Phase 2 Streaming
+              Delta Exchange Live Feed
             </span>
           </div>
           <p className="text-muted-foreground text-sm mt-1">
-            Real-time public exchange WebSocket & REST feeds with millisecond latency diagnostics.
+            Real-time Delta Exchange India WebSocket & REST feeds with millisecond latency diagnostics.
           </p>
         </div>
 
@@ -113,7 +112,7 @@ export default function MarketsPage() {
             {stream.status === 'connected' ? (
               <>
                 <span className="w-2 h-2 rounded-full bg-emerald-400 pulse-dot" />
-                <span className="text-emerald-400 font-medium">WS Live</span>
+                <span className="text-emerald-400 font-medium">Delta WS Live</span>
                 <span className="text-muted-foreground border-l border-white/10 pl-2">
                   {stream.latencyMs}ms latency
                 </span>
@@ -133,14 +132,14 @@ export default function MarketsPage() {
 
           <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
             <button
-              onClick={() => setExchangeId('binance')}
+              onClick={() => setExchangeId('delta')}
               className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
-                exchangeId === 'binance'
+                exchangeId === 'delta'
                   ? 'bg-cyan-500 text-black shadow-sm font-semibold'
                   : 'text-muted-foreground hover:text-white'
               }`}
             >
-              Binance Public
+              Delta Exchange India
             </button>
             <button
               onClick={() => setExchangeId('mock')}

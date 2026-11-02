@@ -151,10 +151,9 @@ describe('Protected Routes & Authentication System', () => {
 
     it('allows public market data APIs without authentication', () => {
       const publicApis = [
-        '/api/mcx/tickers',
-        '/api/mcx/specifications',
+        '/api/options/expiries?underlying=BTC',
         '/api/options/chain?underlying=BTC',
-        '/api/price-gap/history',
+        '/api/market/tickers',
         '/api/expiry/calendar',
       ];
 

@@ -12,14 +12,13 @@
 import type { ExchangeAdapter } from './ExchangeAdapter';
 import type { Ticker, OrderBook, OrderBookLevel } from '@/types';
 
-// Base prices for simulation (INR)
+// Base prices for simulation (Native USD Quote)
 const BASE_PRICES: Record<string, number> = {
-  BTCINR: 7_460_000,
-  ETHINR: 285_000,
-  BNBINR: 54_000,
-  USDTINR: 95.0,
-  BTCUSDT: 78_500,
-  ETHUSDT: 3_000,
+  BTCUSD: 78_500,
+  ETHUSD: 2_500,
+  SOLUSD: 190,
+  XRPUSD: 1.5,
+  DOGEUSD: 0.2,
 };
 
 const SUPPORTED_SYMBOLS = Object.keys(BASE_PRICES);

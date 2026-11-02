@@ -29,18 +29,17 @@ const ORDER_TYPES: { type: OrderType; label: string; desc: string }[] = [
 ];
 
 const SYMBOL_OPTIONS = [
-  { symbol: 'BTCUSDT', name: 'Bitcoin', currency: 'USDT' },
-  { symbol: 'ETHUSDT', name: 'Ethereum', currency: 'USDT' },
-  { symbol: 'SOLUSDT', name: 'Solana', currency: 'USDT' },
-  { symbol: 'BNBUSDT', name: 'BNB', currency: 'USDT' },
-  { symbol: 'BTCINR', name: 'Bitcoin (INR)', currency: 'INR' },
-  { symbol: 'ETHINR', name: 'Ethereum (INR)', currency: 'INR' },
+  { symbol: 'BTCUSD', name: 'Bitcoin', currency: 'USD' },
+  { symbol: 'ETHUSD', name: 'Ethereum', currency: 'USD' },
+  { symbol: 'SOLUSD', name: 'Solana', currency: 'USD' },
+  { symbol: 'XRPUSD', name: 'XRP', currency: 'USD' },
+  { symbol: 'DOGEUSD', name: 'Dogecoin', currency: 'USD' },
 ];
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState<'simulator' | 'portfolio'>('simulator');
-  const [exchangeId, setExchangeId] = useState<'binance' | 'mock'>('binance');
-  const [symbol, setSymbol] = useState('BTCUSDT');
+  const [exchangeId, setExchangeId] = useState<'delta' | 'mock'>('delta');
+  const [symbol, setSymbol] = useState('BTCUSD');
   const [side, setSide] = useState<Side>('BUY');
   const [orderType, setOrderType] = useState<OrderType>('LIMIT');
   const [quantity, setQuantity] = useState('0.25');
@@ -306,12 +305,12 @@ export default function OrdersPage() {
 
               <div className="flex bg-white/5 p-0.5 rounded border border-white/10 text-[10px]">
                 <button
-                  onClick={() => setExchangeId('binance')}
+                  onClick={() => setExchangeId('delta')}
                   className={`px-2 py-0.5 rounded ${
-                    exchangeId === 'binance' ? 'bg-cyan-500 text-black font-bold' : 'text-muted-foreground'
+                    exchangeId === 'delta' ? 'bg-cyan-500 text-black font-bold' : 'text-muted-foreground'
                   }`}
                 >
-                  Binance
+                  Delta Exchange
                 </button>
                 <button
                   onClick={() => setExchangeId('mock')}

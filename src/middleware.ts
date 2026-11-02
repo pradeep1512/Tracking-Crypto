@@ -45,8 +45,6 @@ export function handleAuthRouting(req: NextRequest, sessionUser?: RouteSessionUs
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/market') ||
     pathname.startsWith('/api/exchanges') ||
-    pathname.startsWith('/api/price-gap') ||
-    pathname.startsWith('/api/mcx') ||
     pathname.startsWith('/api/options') ||
     pathname.startsWith('/api/expiry') ||
     pathname === '/api/wallet/payment/webhook';

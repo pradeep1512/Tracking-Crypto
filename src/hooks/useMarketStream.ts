@@ -20,7 +20,7 @@ export interface StreamState {
 
 export function useMarketStream({
   symbol,
-  exchangeId = 'binance',
+  exchangeId = 'delta',
   enabled = true,
 }: UseMarketStreamOptions) {
   const [state, setState] = useState<StreamState>({

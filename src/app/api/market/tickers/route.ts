@@ -6,11 +6,17 @@ import { latencyService } from '@/services/LatencyOptimizationService';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const exchangeId = searchParams.get('exchange') ?? 'binance';
-    const defaultSymbols = exchangeId === 'binance' 
-      ? ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'BTCINR'] 
-      : ['BTCINR', 'ETHINR', 'USDTINR'];
-    const symbols = searchParams.get('symbols')?.split(',') ?? defaultSymbols;
+    const exchangeId = searchParams.get('exchange') ?? 'delta';
+    const defaultSymbols = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'XRPUSD', 'DOGEUSD'];
+    const rawSymbols = searchParams.get('symbols')?.split(',') ?? defaultSymbols;
+
+    // Normalize any legacy symbols
+    const symbols = rawSymbols.map((s) => {
+      const clean = s.trim().toUpperCase();
+      if (clean === 'BTCUSDT' || clean === 'BTCINR') return 'BTCUSD';
+      if (clean === 'ETHUSDT' || clean === 'ETHINR') return 'ETHUSD';
+      return clean;
+    });
 
     const adapter = exchangeRegistry.get(exchangeId) ?? exchangeRegistry.getDefault();
     if (!adapter) {

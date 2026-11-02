@@ -30,42 +30,45 @@ export function DashboardHeader() {
   }, []);
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-card/50 backdrop-blur-sm">
+    <header className="flex items-center justify-between px-6 py-4 border-b border-yellow-500/10 bg-[#08080a]/90 backdrop-blur-md">
       <div className="flex items-center gap-4">
         <div>
-          <h2 className="text-sm font-semibold text-white">Live Dashboard</h2>
-          <p className="text-xs text-muted-foreground">{time} IST</p>
+          <h2 className="text-sm font-bold text-white tracking-wide uppercase flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-yellow-400 pulse-dot shadow-[0_0_8px_#FFE600]" />
+            Live Terminal
+          </h2>
+          <p className="text-xs text-zinc-400 font-mono">{time} IST</p>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
         {/* WS Status */}
         <div
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border ${
             wsStatus === 'connected'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              ? 'bg-yellow-400/15 border-yellow-400/40 text-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.25)]'
               : wsStatus === 'connecting'
               ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
               : 'bg-red-500/10 border-red-500/30 text-red-400'
           }`}
         >
           {wsStatus === 'connected' ? (
-            <Wifi className="w-3 h-3" />
+            <Wifi className="w-3.5 h-3.5 text-yellow-400" />
           ) : wsStatus === 'connecting' ? (
-            <RefreshCw className="w-3 h-3 animate-spin" />
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
           ) : (
-            <WifiOff className="w-3 h-3" />
+            <WifiOff className="w-3.5 h-3.5" />
           )}
-          {wsStatus === 'connected' ? 'Live' : wsStatus === 'connecting' ? 'Connecting…' : 'Disconnected'}
+          {wsStatus === 'connected' ? 'DELTA LIVE' : wsStatus === 'connecting' ? 'SYNCING…' : 'DISCONNECTED'}
         </div>
 
         {/* Admin Shortcut if Admin */}
         {isAdmin && (
           <Link
             href="/admin/dashboard"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 text-xs font-semibold transition-colors"
           >
-            <Shield className="w-3.5 h-3.5 text-purple-400" />
+            <Shield className="w-3.5 h-3.5 text-yellow-400" />
             <span>Admin Terminal</span>
           </Link>
         )}
@@ -73,26 +76,26 @@ export function DashboardHeader() {
         {/* Alerts bell */}
         <button
           id="header-alerts-btn"
-          className="relative p-2 rounded-lg hover:bg-white/5 transition-colors text-muted-foreground hover:text-foreground"
+          className="relative p-2 rounded-lg hover:bg-white/5 transition-colors text-zinc-400 hover:text-yellow-400"
           aria-label="Notifications"
         >
           <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-red-400" />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_6px_#FFE600]" />
         </button>
 
         {/* User Profile Pill & Logout */}
         <div className="flex items-center gap-2 pl-2 border-l border-white/10">
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
-              {user?.name ? user.name[0].toUpperCase() : <User className="w-3.5 h-3.5" />}
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#141417] border border-yellow-500/20">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-yellow-400 to-amber-500 flex items-center justify-center text-black text-xs font-black shadow-[0_0_8px_rgba(250,204,21,0.4)]">
+              {user?.name ? user.name[0].toUpperCase() : <User className="w-3.5 h-3.5 text-black" />}
             </div>
             <div className="flex flex-col text-left">
-              <span className="text-xs font-medium text-white max-w-[120px] truncate">
+              <span className="text-xs font-bold text-white max-w-[120px] truncate">
                 {user?.name || user?.email || 'Trader'}
               </span>
               <span
-                className={`text-[9px] font-bold uppercase tracking-wider ${
-                  isAdmin ? 'text-purple-400' : 'text-emerald-400'
+                className={`text-[9px] font-black uppercase tracking-wider ${
+                  isAdmin ? 'text-yellow-400' : 'text-yellow-400'
                 }`}
               >
                 {userRole}
@@ -104,7 +107,7 @@ export function DashboardHeader() {
             onClick={() => signOut({ callbackUrl: '/signin?logout=true' })}
             id="header-logout-btn"
             title="Sign out of TrackingCrypt"
-            className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-400 text-muted-foreground transition-colors"
+            className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-400 text-zinc-400 transition-colors"
             aria-label="Sign out"
           >
             <LogOut className="w-4 h-4" />

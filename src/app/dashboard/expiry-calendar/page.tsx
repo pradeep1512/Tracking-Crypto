@@ -49,7 +49,10 @@ export default function ExpiryCalendarPage() {
 
   const filteredItems = calendarItems.filter((item) => {
     const matchesCategory =
-      filterCategory === 'ALL' || item.category === filterCategory;
+      filterCategory === 'ALL' ||
+      item.category === filterCategory ||
+      (filterCategory === 'BTC' && item.symbol.toUpperCase().includes('BTC')) ||
+      (filterCategory === 'ETH' && item.symbol.toUpperCase().includes('ETH'));
     const matchesSearch =
       item.contractName.toLowerCase().includes(search.toLowerCase()) ||
       item.symbol.toLowerCase().includes(search.toLowerCase());
@@ -66,8 +69,8 @@ export default function ExpiryCalendarPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          portfolioId: 'port_mcx_precious',
-          positionId: 'pos_gold_1',
+          portfolioId: 'port_delta_crypto',
+          positionId: 'pos_crypto_1',
           currentExpiry: selectedItemForRoll.expiryDate,
           nextExpiry: targetExpiry,
           userConfirmed: true,
@@ -101,7 +104,7 @@ export default function ExpiryCalendarPage() {
             </span>
           </div>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Monitor approaching contract expiries, tender periods, and execute authorized rollovers without physical delivery penalty
+            Monitor approaching Delta Exchange contract expiries, cash settlement schedules, and execute automated crypto contract rollovers
           </p>
         </div>
       </div>
@@ -111,9 +114,9 @@ export default function ExpiryCalendarPage() {
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
           {[
             { id: 'ALL', label: 'All Contracts' },
-            { id: 'MCX_COMMODITY', label: 'MCX Commodities' },
             { id: 'CRYPTO', label: 'Crypto Options' },
-            { id: 'OPTION', label: 'Commodity Options' },
+            { id: 'BTC', label: 'BTC Contracts' },
+            { id: 'ETH', label: 'ETH Contracts' },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -167,7 +170,7 @@ export default function ExpiryCalendarPage() {
                     <td className="py-3.5">
                       <span className="font-bold text-white text-sm block">{item.contractName}</span>
                       <span className="text-[11px] text-muted-foreground font-mono">
-                        LTP: ₹{item.currentLTP.toLocaleString('en-IN')} • OI: {item.openInterest.toLocaleString()}
+                        LTP: ${item.currentLTP.toLocaleString('en-US')} • OI: {item.openInterest.toLocaleString()}
                       </span>
                     </td>
 
@@ -272,7 +275,7 @@ export default function ExpiryCalendarPage() {
               </div>
 
               <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
-                <p className="font-bold">Estimated Rollover Spread: ₹35.00 (0.04%)</p>
+                <p className="font-bold">Estimated Rollover Spread: $35.00 (0.04%)</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
                   Near month will be closed at market and next month re-opened with zero downtime.
                 </p>

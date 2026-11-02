@@ -9,18 +9,19 @@ export async function POST(req: NextRequest) {
     const userId = session?.user?.id || 'dev_user';
 
     const body = await req.json();
-    const { amountINR, paymentMethod } = body;
+    const amount = Number(body.amountUSD || body.amount || body.amountINR);
+    const paymentMethod = body.paymentMethod || 'SANDBOX';
 
-    if (!amountINR || Number(amountINR) <= 0) {
+    if (!amount || amount <= 0) {
       return NextResponse.json(
-        { success: false, error: 'A valid amount in INR is required.' },
+        { success: false, error: 'A valid deposit amount is required.' },
         { status: 400 }
       );
     }
 
     const result = await walletService.initiateAddMoney({
       userId,
-      amountINR: Number(amountINR),
+      amountINR: amount,
       paymentMethod,
     });
 

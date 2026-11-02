@@ -43,6 +43,11 @@ export interface Ticker {
   lastPrice: number;
   bestBid: number;
   bestAsk: number;
+  bidPrice?: number;
+  askPrice?: number;
+  markPrice?: number;
+  quotingAsset?: string;
+  exchange?: string;
   bidQuantity: number;
   askQuantity: number;
   spread: number;
@@ -51,6 +56,7 @@ export interface Ticker {
   high24h?: number;
   low24h?: number;
   exchangeTimestamp: Date;
+  timestamp?: Date;
   receivedAt: Date;
   dataAgeMs: number;
   isMock: boolean;
@@ -84,6 +90,7 @@ export interface OrderBookLevel {
 
 export interface OrderBook {
   exchangeId: string;
+  exchange?: string;
   symbol: string;
   bids: OrderBookLevel[];
   asks: OrderBookLevel[];
@@ -260,9 +267,10 @@ export type OptionType = 'CE' | 'PE';
 
 export interface OptionContractDetails {
   id: string;
+  symbol?: string;
   underlying: string;
-  category: AssetCategory;
-  exchangeOrBroker: string;
+  category?: AssetCategory;
+  exchangeOrBroker?: string;
   strikePrice: number;
   optionType: OptionType;
   expiryDate: string;
@@ -270,6 +278,7 @@ export interface OptionContractDetails {
   bidPrice: number;
   askPrice: number;
   lastTradedPrice: number;
+  markPrice?: number;
   volume: number;
   openInterest: number;
   impliedVolatility: number;
@@ -278,7 +287,7 @@ export interface OptionContractDetails {
   theta?: number;
   vega?: number;
   moneyness: 'ITM' | 'ATM' | 'OTM';
-  source: string;
+  source?: string;
 }
 
 export interface OptionChainStrikeRow {
@@ -291,12 +300,16 @@ export interface OptionChainStrikeRow {
 export interface OptionsChainData {
   underlying: string;
   underlyingPrice: number;
-  category: AssetCategory;
-  exchange: string;
-  selectedExpiry: string;
-  availableExpiries: string[];
+  category?: AssetCategory;
+  exchange?: string;
+  selectedExpiry?: string;
+  expiryDate?: string;
+  expiryIso?: string;
+  formattedExpiryDate?: string;
+  atmStrike?: number;
+  availableExpiries?: string[];
   strikes: OptionChainStrikeRow[];
-  timestamp: string;
+  timestamp: string | Date;
 }
 
 // ─── Portfolio & Strategy Trading Types ────────────────────────────────────────
@@ -364,7 +377,7 @@ export interface UserPortfolio {
   name: string;
   description: string;
   category: PortfolioCategory;
-  currency: 'INR' | 'USDT';
+  currency: 'USD' | 'USDT' | 'INR';
   initialCapital: number;
   totalCapital: number;
   allocatedCapital: number;
@@ -409,16 +422,15 @@ export interface PortfolioTransaction {
   timestamp: string;
 }
 
-// ─── Broker Integration Types ────────────────────────────────────────────────
-
 export type SupportedBroker =
+  | 'DELTA_EXCHANGE'
+  | 'PAPER_SIMULATOR'
   | 'ZERODHA'
   | 'ANGEL_ONE'
   | 'UPSTOX'
   | 'DHAN'
   | 'BINANCE'
-  | 'COINDCX'
-  | 'PAPER_SIMULATOR';
+  | 'COINDCX';
 
 export interface BrokerAccountInfo {
   brokerId: string;
@@ -574,6 +586,7 @@ export interface LiveOrderExecutionRequest {
   side: Side;
   orderType: OrderType;
   quantity?: number;
+  investmentAmountUSD?: number;
   investmentAmountINR?: number;
   limitPrice?: number;
   stopLossPrice?: number;
@@ -588,9 +601,11 @@ export interface OrderPreviewResult {
   orderType: OrderType;
   quantity: number;
   estimatedPrice: number;
+  estimatedOrderValueUSD?: number;
   estimatedOrderValueINR: number;
   estimatedOrderValueNative: number;
   nativeCurrency: string;
+  applicableFeesUSD?: number;
   applicableFeesINR: number;
   availableExchangeBalance: number;
   estimatedRemainingBalance: number;

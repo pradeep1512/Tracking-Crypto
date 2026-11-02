@@ -3,8 +3,12 @@ import { exchangeRegistry } from '@/lib/exchange/ExchangeRegistry';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const symbol = searchParams.get('symbol') ?? 'BTCUSDT';
-  const exchangeId = searchParams.get('exchange') ?? 'binance';
+  let symbol = searchParams.get('symbol') ?? 'BTCUSD';
+  const clean = symbol.toUpperCase().trim();
+  if (clean === 'BTCUSDT' || clean === 'BTCINR') symbol = 'BTCUSD';
+  if (clean === 'ETHUSDT' || clean === 'ETHINR') symbol = 'ETHUSD';
+
+  const exchangeId = searchParams.get('exchange') ?? 'delta';
 
   const adapter = exchangeRegistry.get(exchangeId) ?? exchangeRegistry.getDefault();
   if (!adapter) {
@@ -36,13 +40,19 @@ export async function GET(request: NextRequest) {
   });
 
   // Send initial snapshot
-  adapter.getTicker(symbol.toUpperCase()).then((ticker) => {
-    sendEvent('ticker', ticker);
-  }).catch(() => {});
+  adapter
+    .getTicker(symbol.toUpperCase())
+    .then((ticker) => {
+      sendEvent('ticker', ticker);
+    })
+    .catch(() => {});
 
-  adapter.getOrderBook(symbol.toUpperCase(), 20).then((ob) => {
-    sendEvent('orderbook', ob);
-  }).catch(() => {});
+  adapter
+    .getOrderBook(symbol.toUpperCase(), 20)
+    .then((ob) => {
+      sendEvent('orderbook', ob);
+    })
+    .catch(() => {});
 
   // Subscribe to live ticker stream
   const unsubTicker = adapter.subscribeToTicker(symbol.toUpperCase(), (ticker) => {
@@ -73,9 +83,10 @@ export async function GET(request: NextRequest) {
 
   return new Response(responseStream.readable, {
     headers: {
-      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   });
 }

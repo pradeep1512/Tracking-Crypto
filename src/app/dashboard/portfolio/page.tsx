@@ -40,9 +40,9 @@ export default function MyPortfolioPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<PortfolioCategory>('CRYPTO');
-  const [currency, setCurrency] = useState<'INR' | 'USDT'>('INR');
-  const [initialCapital, setInitialCapital] = useState(100000);
-  const [maxInvestment, setMaxInvestment] = useState(80000);
+  const [currency, setCurrency] = useState<'USD' | 'USDT'>('USD');
+  const [initialCapital, setInitialCapital] = useState(10000);
+  const [maxInvestment, setMaxInvestment] = useState(8000);
   const [riskLimit, setRiskLimit] = useState(5.0);
 
   const fetchPortfolios = useCallback(async () => {
@@ -375,15 +375,15 @@ export default function MyPortfolioPage() {
             <div className="glass-card p-4">
               <span className="text-[11px] text-muted-foreground uppercase font-semibold">Total Capital</span>
               <p className="text-xl font-mono font-black text-white mt-1">
-                {activePortfolio.currency === 'INR' ? '₹' : '$'}{activePortfolio.totalCapital.toLocaleString()}
+                ${activePortfolio.totalCapital.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
-              <span className="text-[10px] text-muted-foreground">Initial: {activePortfolio.initialCapital.toLocaleString()}</span>
+              <span className="text-[10px] text-muted-foreground">Initial: ${activePortfolio.initialCapital.toLocaleString()}</span>
             </div>
 
             <div className="glass-card p-4">
               <span className="text-[11px] text-muted-foreground uppercase font-semibold">Available Balance</span>
               <p className="text-xl font-mono font-black text-cyan-400 mt-1">
-                {activePortfolio.currency === 'INR' ? '₹' : '$'}{activePortfolio.availableBalance.toLocaleString()}
+                ${activePortfolio.availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <span className="text-[10px] text-muted-foreground">Free margin</span>
             </div>
@@ -391,7 +391,7 @@ export default function MyPortfolioPage() {
             <div className="glass-card p-4">
               <span className="text-[11px] text-muted-foreground uppercase font-semibold">Invested Amount</span>
               <p className="text-xl font-mono font-black text-white mt-1">
-                {activePortfolio.currency === 'INR' ? '₹' : '$'}{activePortfolio.investedAmount.toLocaleString()}
+                ${activePortfolio.investedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <span className="text-[10px] text-muted-foreground">In active positions</span>
             </div>
@@ -399,9 +399,9 @@ export default function MyPortfolioPage() {
             <div className="glass-card p-4">
               <span className="text-[11px] text-muted-foreground uppercase font-semibold">Unrealized P&L</span>
               <p className={cn('text-xl font-mono font-black mt-1', activePortfolio.unrealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
-                {activePortfolio.unrealizedPnL >= 0 ? '+' : ''}{activePortfolio.currency === 'INR' ? '₹' : '$'}{activePortfolio.unrealizedPnL.toLocaleString()}
+                {activePortfolio.unrealizedPnL >= 0 ? '+' : ''}${activePortfolio.unrealizedPnL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
-              <span className="text-[10px] text-muted-foreground">Realized: {activePortfolio.currency === 'INR' ? '₹' : '$'}{activePortfolio.realizedPnL.toLocaleString()}</span>
+              <span className="text-[10px] text-muted-foreground">Realized: ${activePortfolio.realizedPnL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
 
@@ -450,11 +450,11 @@ export default function MyPortfolioPage() {
                               </span>
                             </td>
                             <td className="py-3 text-white">{pos.quantity}</td>
-                            <td className="py-3 text-white">₹{pos.entryPrice.toLocaleString()}</td>
-                            <td className="py-3 text-white">₹{pos.currentPrice.toLocaleString()}</td>
-                            <td className="py-3 text-white">₹{pos.currentMarketValue.toLocaleString()}</td>
+                            <td className="py-3 text-white">${pos.entryPrice.toLocaleString()}</td>
+                            <td className="py-3 text-white">${pos.currentPrice.toLocaleString()}</td>
+                            <td className="py-3 text-white">${pos.currentMarketValue.toLocaleString()}</td>
                             <td className={cn('py-3 font-bold', isPos ? 'text-emerald-400' : 'text-rose-400')}>
-                              {isPos ? '+' : ''}₹{pos.unrealizedPnL.toLocaleString()} ({formatPercent(pos.unrealizedPnLPct, false)})
+                              {isPos ? '+' : ''}${pos.unrealizedPnL.toLocaleString()} ({formatPercent(pos.unrealizedPnLPct, false)})
                             </td>
                             <td className="py-3 text-right">
                               <button
@@ -527,10 +527,7 @@ export default function MyPortfolioPage() {
                     className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
                   >
                     <option value="CRYPTO">Crypto</option>
-                    <option value="GOLD">Gold</option>
-                    <option value="SILVER">Silver</option>
-                    <option value="MCX_COMMODITY">MCX Commodity</option>
-                    <option value="OPTIONS_TRADING">Options Trading</option>
+                    <option value="OPTIONS_TRADING">Options Trading (Delta Exchange)</option>
                     <option value="CUSTOM">Custom Multi-Asset</option>
                   </select>
                 </div>
@@ -539,10 +536,10 @@ export default function MyPortfolioPage() {
                   <label className="text-xs text-muted-foreground block mb-1">Currency</label>
                   <select
                     value={currency}
-                    onChange={(e) => setCurrency(e.target.value as 'INR' | 'USDT')}
+                    onChange={(e) => setCurrency(e.target.value as 'USD' | 'USDT')}
                     className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
                   >
-                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
                     <option value="USDT">USDT ($)</option>
                   </select>
                 </div>

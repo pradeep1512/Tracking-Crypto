@@ -55,6 +55,26 @@ export class WebSocketStreamManager {
     this.staleThresholdMs = staleThresholdMs;
   }
 
+  private onOpenCallbacks = new Set<() => void>();
+
+  public onOpen(callback: () => void): () => void {
+    this.onOpenCallbacks.add(callback);
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      try { callback(); } catch {}
+    }
+    return () => {
+      this.onOpenCallbacks.delete(callback);
+    };
+  }
+
+  public send(data: string): boolean {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(data);
+      return true;
+    }
+    return false;
+  }
+
   public connect(): void {
     if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
       return;
@@ -73,6 +93,9 @@ export class WebSocketStreamManager {
         this.notifyStatus('connected');
         this.startHeartbeat();
         this.startStaleChecker();
+        for (const cb of this.onOpenCallbacks) {
+          try { cb(); } catch {}
+        }
       });
 
       this.ws.on('message', (raw: WebSocket.RawData) => {

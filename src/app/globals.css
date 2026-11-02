@@ -1,25 +1,38 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: hsl(222 47% 7%);
-  --color-foreground: hsl(210 40% 98%);
-  --color-card: hsl(222 47% 10%);
-  --color-card-foreground: hsl(210 40% 98%);
-  --color-popover: hsl(222 47% 10%);
-  --color-popover-foreground: hsl(210 40% 98%);
-  --color-primary: hsl(199 89% 48%);
-  --color-primary-foreground: hsl(222 47% 7%);
-  --color-secondary: hsl(217 32% 17%);
-  --color-secondary-foreground: hsl(210 40% 98%);
-  --color-muted: hsl(217 32% 14%);
-  --color-muted-foreground: hsl(215 20% 55%);
-  --color-accent: hsl(199 89% 48%);
-  --color-accent-foreground: hsl(222 47% 7%);
+  --color-background: hsl(0 0% 4%);
+  --color-foreground: hsl(0 0% 98%);
+  --color-card: hsl(0 0% 8%);
+  --color-card-foreground: hsl(0 0% 98%);
+  --color-popover: hsl(0 0% 9%);
+  --color-popover-foreground: hsl(0 0% 98%);
+  --color-primary: hsl(48 96% 53%);
+  --color-primary-foreground: hsl(0 0% 4%);
+  --color-secondary: hsl(0 0% 13%);
+  --color-secondary-foreground: hsl(48 96% 53%);
+  --color-muted: hsl(0 0% 12%);
+  --color-muted-foreground: hsl(0 0% 64%);
+  --color-accent: hsl(48 96% 53%);
+  --color-accent-foreground: hsl(0 0% 4%);
   --color-destructive: hsl(0 84% 60%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(217 32% 17%);
-  --color-input: hsl(217 32% 17%);
-  --color-ring: hsl(199 89% 48%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-border: hsl(0 0% 16%);
+  --color-input: hsl(0 0% 14%);
+  --color-ring: hsl(48 96% 53%);
+
+  /* Global Cyber Yellow Palette Override for all cyan utility classes */
+  --color-cyan-50: #fefce8;
+  --color-cyan-100: #fef9c3;
+  --color-cyan-200: #fef08a;
+  --color-cyan-300: #fde047;
+  --color-cyan-400: #facc15;
+  --color-cyan-500: #ffe600;
+  --color-cyan-600: #ca8a04;
+  --color-cyan-700: #a16207;
+  --color-cyan-800: #854d0e;
+  --color-cyan-900: #713f12;
+  --color-cyan-950: #181502;
 
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
@@ -28,17 +41,20 @@
 }
 
 :root {
-  /* Brand colors */
-  --brand-cyan: hsl(199, 89%, 48%);
-  --brand-blue: hsl(221, 83%, 53%);
-  --brand-purple: hsl(262, 83%, 58%);
-  --brand-emerald: hsl(160, 84%, 39%);
-  --brand-amber: hsl(38, 92%, 50%);
+  /* Brand colors - High Voltage Cyber Yellow & Industrial Jet Black Theme */
+  --brand-yellow: hsl(48, 96%, 53%);
+  --brand-yellow-neon: #FFE600;
+  --brand-yellow-gold: hsl(45, 93%, 47%);
+  --brand-cyan: hsl(48, 96%, 53%); /* Redirecting legacy cyan references to Cyber Yellow */
+  --brand-blue: hsl(45, 93%, 47%);
+  --brand-purple: hsl(48, 96%, 53%);
+  --brand-emerald: hsl(142, 76%, 45%);
+  --brand-amber: hsl(45, 93%, 47%);
   --brand-rose: hsl(0, 84%, 60%);
 
-  /* Gap colors */
-  --gap-safe: hsl(160, 84%, 39%);
-  --gap-warn: hsl(38, 92%, 50%);
+  /* Market & Risk colors */
+  --gap-safe: hsl(142, 76%, 45%);
+  --gap-warn: hsl(48, 96%, 53%);
   --gap-danger: hsl(0, 84%, 60%);
 }
 
@@ -55,32 +71,37 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar in Cyber Yellow */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(222, 47%, 7%);
+  background: hsl(0, 0%, 5%);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(217, 32%, 25%);
+  background: hsl(0, 0%, 20%);
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(199, 89%, 48%);
+  background: #FFE600;
+  box-shadow: 0 0 10px #FFE600;
 }
 
-/* Glow utilities */
-.glow-cyan {
-  box-shadow: 0 0 20px hsl(199, 89%, 48%, 0.3), 0 0 60px hsl(199, 89%, 48%, 0.1);
+/* Cyber Yellow & Grunge Utilities */
+.glow-yellow, .glow-cyan {
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.4), 0 0 60px rgba(250, 204, 21, 0.15);
+}
+
+.glow-cyber {
+  box-shadow: 0 0 25px rgba(255, 230, 0, 0.45), 0 0 80px rgba(255, 230, 0, 0.2);
 }
 
 .glow-emerald {
-  box-shadow: 0 0 20px hsl(160, 84%, 39%, 0.3), 0 0 60px hsl(160, 84%, 39%, 0.1);
+  box-shadow: 0 0 20px hsl(142, 76%, 45%, 0.3), 0 0 60px hsl(142, 76%, 45%, 0.1);
 }
 
 .glow-rose {
@@ -88,27 +109,31 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(18, 18, 20, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(250, 204, 21, 0.12);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(14, 14, 16, 0.85);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
 }
 
+.glass-card:hover {
+  border-color: rgba(250, 204, 21, 0.35);
+}
+
 .gradient-text {
-  background: linear-gradient(135deg, hsl(199, 89%, 58%) 0%, hsl(221, 83%, 63%) 50%, hsl(262, 83%, 68%) 100%);
+  background: linear-gradient(135deg, #FFF200 0%, #FACC15 50%, #EAB308 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .ticker-positive {
-  color: hsl(160, 84%, 50%);
+  color: hsl(142, 76%, 48%);
 }
 
 .ticker-negative {
@@ -116,13 +141,13 @@ body {
 }
 
 .ticker-neutral {
-  color: hsl(38, 92%, 50%);
+  color: hsl(48, 96%, 53%);
 }
 
-/* Animated gradient border */
+/* Animated gradient border in Cyber Yellow */
 .gradient-border {
   position: relative;
-  background: hsl(222, 47%, 10%);
+  background: hsl(0, 0%, 7%);
   border-radius: 12px;
 }
 
@@ -131,7 +156,7 @@ body {
   position: absolute;
   inset: -1px;
   border-radius: 13px;
-  background: linear-gradient(135deg, hsl(199, 89%, 48%, 0.4), hsl(262, 83%, 58%, 0.4), hsl(199, 89%, 48%, 0.4));
+  background: linear-gradient(135deg, #FFE600 0%, #EAB308 50%, #FFE600 100%);
   background-size: 200% 200%;
   animation: gradient-rotate 4s linear infinite;
   z-index: -1;
@@ -146,7 +171,7 @@ body {
 /* Price flash animations */
 @keyframes flash-green {
   0%, 100% { background-color: transparent; }
-  50% { background-color: hsl(160, 84%, 39%, 0.2); }
+  50% { background-color: hsl(142, 76%, 45%, 0.2); }
 }
 
 @keyframes flash-red {
@@ -154,8 +179,14 @@ body {
   50% { background-color: hsl(0, 84%, 60%, 0.2); }
 }
 
+@keyframes flash-yellow {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(250, 204, 21, 0.25); }
+}
+
 .flash-up { animation: flash-green 0.4s ease-out; }
 .flash-down { animation: flash-red 0.4s ease-out; }
+.flash-yellow { animation: flash-yellow 0.4s ease-out; }
 
 /* Pulse dot */
 @keyframes pulse-dot {
@@ -165,4 +196,39 @@ body {
 
 .pulse-dot {
   animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Cyber Grunge Background & Textured Overlays */
+.cyber-grunge-bg {
+  position: relative;
+  background-color: #060608;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(255, 230, 0, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(250, 204, 21, 0.05) 0%, transparent 45%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+}
+
+/* High-contrast cyber button */
+.btn-cyber-yellow {
+  background: linear-gradient(135deg, #FFE600 0%, #FACC15 100%);
+  color: #000000;
+  font-weight: 700;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(250, 204, 21, 0.35);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-cyber-yellow:hover {
+  background: linear-gradient(135deg, #FFF04D 0%, #FFE600 100%);
+  box-shadow: 0 0 25px rgba(255, 230, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Cyber yellow badge */
+.badge-cyber-yellow {
+  background-color: rgba(250, 204, 21, 0.15);
+  color: #FACC15;
+  border: 1px solid rgba(250, 204, 21, 0.4);
 }

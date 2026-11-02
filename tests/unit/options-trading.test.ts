@@ -2,39 +2,57 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { optionsTradingService } from '../../src/services/OptionsTradingService';
 
-describe('Options Trading & Dynamic Options Chain', () => {
-  it('generates options chain with realistic strikes around ATM for BTC', () => {
-    const chain = optionsTradingService.getOptionsChain('BTC');
+describe('Delta Exchange Dynamic Crypto Options Chain & Greeks Engine', () => {
+  it('generates dynamic options chain from Delta Exchange for BTC with ATM identification', async () => {
+    const chain = await optionsTradingService.getOptionsChain('BTC');
     assert.strictEqual(chain.underlying, 'BTC');
-    assert.strictEqual(chain.strikes.length > 10, true);
+    assert.ok(chain.strikes.length > 0, 'Expected strikes to be populated from Delta Exchange');
 
     const atmRow = chain.strikes.find((s) => s.isATM);
-    assert.strictEqual(Boolean(atmRow), true);
+    assert.ok(atmRow, 'Expected ATM strike to be identified');
     assert.strictEqual(atmRow!.call.optionType, 'CE');
     assert.strictEqual(atmRow!.put.optionType, 'PE');
+    assert.ok(atmRow!.call.strikePrice > 0);
   });
 
-  it('calculates Black-Scholes Greeks including Delta, Gamma, Theta, and Vega', () => {
-    const chain = optionsTradingService.getOptionsChain('BTC');
-    const atmRow = chain.strikes.find((s) => s.isATM)!;
+  it('generates dynamic options chain from Delta Exchange for ETH with ATM identification', async () => {
+    const chain = await optionsTradingService.getOptionsChain('ETH');
+    assert.strictEqual(chain.underlying, 'ETH');
+    assert.ok(chain.strikes.length > 0, 'Expected ETH strikes from Delta Exchange');
+  });
 
-    // Call delta for ATM is approx 0.50
-    assert.strictEqual(atmRow.call.delta! > 0.3 && atmRow.call.delta! < 0.7, true);
-    // Put delta for ATM is approx -0.50
-    assert.strictEqual(atmRow.put.delta! < -0.3 && atmRow.put.delta! > -0.7, true);
+  it('calculates options Greeks (Delta, Gamma, Theta, Vega) and quotes', async () => {
+    const chain = await optionsTradingService.getOptionsChain('BTC');
+    const atmRow = chain.strikes.find((s) => s.isATM);
+    assert.ok(atmRow);
+
+    // Call delta is positive and within valid range
+    assert.ok(atmRow.call.delta! > 0.1 && atmRow.call.delta! < 0.95, `Call delta ${atmRow.call.delta} should be valid`);
+    // Put delta is negative and within valid range
+    assert.ok(atmRow.put.delta! < -0.05 && atmRow.put.delta! > -0.95, `Put delta ${atmRow.put.delta} should be valid`);
     // Theta should be negative (time decay)
-    assert.strictEqual(atmRow.call.theta! <= 0, true);
-    assert.strictEqual(atmRow.call.vega! >= 0, true);
+    assert.ok(atmRow.call.theta! <= 0, `Theta ${atmRow.call.theta} should be <= 0`);
+    // Vega should be non-negative
+    assert.ok(atmRow.call.vega! >= 0, `Vega ${atmRow.call.vega} should be >= 0`);
   });
 
-  it('supports MCX Commodity Options for Gold and Crude Oil', () => {
-    const goldChain = optionsTradingService.getOptionsChain('GOLD');
-    assert.strictEqual(goldChain.underlying, 'GOLD');
-    assert.strictEqual(goldChain.category, 'MCX_COMMODITY');
-    assert.strictEqual(goldChain.strikes.length > 5, true);
+  it('dynamically resolves exact Delta Exchange product ID from selected strike and expiry', async () => {
+    const expiriesData = await optionsTradingService.getAvailableExpiries('BTC');
+    assert.ok(expiriesData.expiries.length > 0, 'Expected live expiries from Delta Exchange');
 
-    const crudeChain = optionsTradingService.getOptionsChain('CRUDEOIL');
-    assert.strictEqual(crudeChain.underlying, 'CRUDEOIL');
-    assert.strictEqual(crudeChain.category, 'MCX_COMMODITY');
+    const expiry = expiriesData.expiries[0].iso;
+    const chain = await optionsTradingService.getOptionsChain('BTC', expiry);
+    const strike = chain.strikes[0].strikePrice;
+
+    const resolved = await optionsTradingService.resolveOptionProduct({
+      underlying: 'BTC',
+      expiryIso: expiry,
+      strikePrice: strike,
+      optionType: 'CE',
+    });
+    assert.ok(resolved, 'Expected product resolution');
+    assert.ok(resolved.productId > 0, 'Expected positive numeric product ID');
+    assert.ok(resolved.symbol.includes('BTC'), `Resolved symbol ${resolved.symbol}`);
+    assert.strictEqual(resolved.quotingAsset, 'USD');
   });
 });

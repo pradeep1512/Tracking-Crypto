@@ -1,12 +1,12 @@
 /**
- * BrokerIntegrationService — Modular Multi-Broker Gateway for Live & Paper Trading.
+ * BrokerIntegrationService — Delta Exchange & Paper Trading Gateway.
  *
  * Implements:
- * - Authorized Indian Brokers: Zerodha Kite Connect, Angel One SmartAPI, Upstox v2, DhanHQ
- * - Crypto Exchanges: Binance API, CoinDCX API
+ * - Delta Exchange India Official Gateway
  * - Paper Trading Simulator Broker (default zero-risk execution)
  * - Safe credential verification (read/trade only, zero withdrawal permissions)
  * - Margin checks, order placement, order cancellations, and portfolio position synchronization
+ * - Native USD execution (no INR conversion or MCX commodities)
  */
 
 import { randomUUID } from 'crypto';
@@ -49,52 +49,24 @@ export class BrokerIntegrationService {
         accountUserId: 'SIM-TRADER-99',
         isConnected: true,
         isLiveTradingAuthorized: false,
-        totalBalance: 10000000, // ₹1 Cr
-        availableMargin: 8500000,
-        usedMargin: 1500000,
-        currency: 'INR',
+        totalBalance: 100000,
+        availableMargin: 85000,
+        usedMargin: 15000,
+        currency: 'USD',
         lastSyncAt: new Date().toISOString(),
-        supportedSegments: ['EQUITY', 'COMMODITY', 'CRYPTO', 'FUTURES', 'OPTIONS'],
+        supportedSegments: ['CRYPTO', 'FUTURES', 'OPTIONS'],
       },
       {
-        brokerId: 'broker_zerodha_01',
-        brokerType: 'ZERODHA',
-        displayName: 'Zerodha Kite Connect (MCX & Derivatives)',
-        accountUserId: 'TC9921',
-        isConnected: true,
-        isLiveTradingAuthorized: false, // Default is disabled until user authorizes live mode
-        totalBalance: 2500000,
-        availableMargin: 1850000,
-        usedMargin: 650000,
-        currency: 'INR',
-        lastSyncAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-        supportedSegments: ['COMMODITY', 'FUTURES', 'OPTIONS'],
-      },
-      {
-        brokerId: 'broker_angel_01',
-        brokerType: 'ANGEL_ONE',
-        displayName: 'Angel One SmartAPI',
-        accountUserId: 'AO-5524',
+        brokerId: 'broker_delta_01',
+        brokerType: 'DELTA_EXCHANGE' as SupportedBroker,
+        displayName: 'Delta Exchange India (Live Derivatives)',
+        accountUserId: 'DELTA-IND-7782',
         isConnected: true,
         isLiveTradingAuthorized: false,
-        totalBalance: 1500000,
-        availableMargin: 1200000,
-        usedMargin: 300000,
-        currency: 'INR',
-        lastSyncAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        supportedSegments: ['COMMODITY', 'FUTURES', 'OPTIONS'],
-      },
-      {
-        brokerId: 'broker_binance_01',
-        brokerType: 'BINANCE',
-        displayName: 'Binance Live (Spot & Derivatives)',
-        accountUserId: 'BIN-PRO-01',
-        isConnected: true,
-        isLiveTradingAuthorized: false,
-        totalBalance: 50000, // $50,000 USDT
-        availableMargin: 42000,
-        usedMargin: 8000,
-        currency: 'USDT',
+        totalBalance: 30000,
+        availableMargin: 25000,
+        usedMargin: 5000,
+        currency: 'USD',
         lastSyncAt: new Date().toISOString(),
         supportedSegments: ['CRYPTO', 'FUTURES', 'OPTIONS'],
       },
@@ -131,7 +103,7 @@ export class BrokerIntegrationService {
     accessToken?: string;
   }): BrokerAccountInfo {
     const brokerId = `broker_${data.brokerType.toLowerCase()}_${randomUUID().slice(0, 6)}`;
-    const currency = data.brokerType === 'BINANCE' ? 'USDT' : 'INR';
+    const currency = 'USD';
 
     const info: BrokerAccountInfo = {
       brokerId,
@@ -140,14 +112,12 @@ export class BrokerIntegrationService {
       accountUserId: data.accountUserId,
       isConnected: true,
       isLiveTradingAuthorized: false,
-      totalBalance: data.brokerType === 'BINANCE' ? 25000 : 1000000,
-      availableMargin: data.brokerType === 'BINANCE' ? 20000 : 800000,
+      totalBalance: 25000,
+      availableMargin: 20000,
       usedMargin: 0,
       currency,
       lastSyncAt: new Date().toISOString(),
-      supportedSegments: data.brokerType === 'BINANCE' || data.brokerType === 'COINDCX'
-        ? ['CRYPTO', 'FUTURES', 'OPTIONS']
-        : ['COMMODITY', 'FUTURES', 'OPTIONS'],
+      supportedSegments: ['CRYPTO', 'FUTURES', 'OPTIONS'],
     };
 
     this.connectedBrokers.set(brokerId, info);
@@ -199,9 +169,9 @@ export class BrokerIntegrationService {
     }
 
     // Execution simulation / live dispatch
-    const executionPrice = order.price ?? (order.category === 'MCX_COMMODITY' ? 78450 : 88500);
+    const executionPrice = order.price ?? 78500;
     const filledQuantity = order.quantity;
-    const feePct = order.category === 'CRYPTO' ? 0.001 : 0.0003;
+    const feePct = 0.0005;
     const fees = Number((executionPrice * filledQuantity * feePct).toFixed(2));
     const brokerOrderId = isLive ? `BRK-${broker.brokerType}-${randomUUID().slice(0, 8)}` : undefined;
 
@@ -210,7 +180,7 @@ export class BrokerIntegrationService {
       portfolioService.addPosition(order.portfolioId, {
         symbol: order.symbol,
         name: `${order.symbol} (${order.side})`,
-        category: order.category,
+        category: order.category === 'MCX_COMMODITY' ? 'CRYPTO' : order.category,
         side: order.side,
         quantity: filledQuantity,
         entryPrice: executionPrice,
@@ -240,7 +210,7 @@ export class BrokerIntegrationService {
       timestamp: new Date().toISOString(),
       message: isLive
         ? `Order routed and filled through ${broker.displayName} (Ref: ${brokerOrderId})`
-        : `Paper order executed successfully at ₹${executionPrice.toLocaleString()} with simulated fills.`,
+        : `Paper order executed successfully at $${executionPrice.toLocaleString()} with simulated fills.`,
     };
   }
 

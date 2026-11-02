@@ -5,8 +5,12 @@ import { apiSuccess, apiError, handleUnknownError } from '@/lib/utils/api';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const exchangeId = searchParams.get('exchange') ?? 'mock';
-    const symbol = searchParams.get('symbol') ?? 'BTCINR';
+    const exchangeId = searchParams.get('exchange') ?? 'delta';
+    let symbol = searchParams.get('symbol') ?? 'BTCUSD';
+    const clean = symbol.toUpperCase().trim();
+    if (clean === 'BTCUSDT' || clean === 'BTCINR') symbol = 'BTCUSD';
+    if (clean === 'ETHUSDT' || clean === 'ETHINR') symbol = 'ETHUSD';
+
     const depth = parseInt(searchParams.get('depth') ?? '20', 10);
 
     if (depth < 1 || depth > 100) {

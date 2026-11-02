@@ -318,7 +318,7 @@ model TradeFill {
 model UserSettings {
   id                        String   @id @default(cuid())
   userId                    String   @unique
-  preferredCurrency         String   @default("INR")
+  preferredCurrency         String   @default("USD")
   preferredExchangeId       String?
   preferredTradingPairId    String?
   maximumBuyPrice           Decimal? @db.Decimal(30, 10)
@@ -415,7 +415,7 @@ model Instrument {
   name            String
   category        String   // "CRYPTO" | "MCX_COMMODITY" | "OPTION"
   subCategory     String?  // "PRECIOUS_METALS" | "ENERGY" | "BASE_METALS" | "SPOT_CRYPTO"
-  currency        String   @default("INR") // "INR" | "USDT"
+  currency        String   @default("USD") // "USD" | "USDT"
   tickSize        Decimal  @db.Decimal(30, 10)
   lotSize         Decimal  @db.Decimal(30, 10) @default(1)
   unit            String   // "1 kg", "100 g", "BBL", "mmBtu", "coin"
@@ -484,8 +484,8 @@ model Portfolio {
   userId              String
   name                String
   description         String?
-  category            String   // "CRYPTO" | "GOLD" | "SILVER" | "MCX_COMMODITY" | "OPTIONS_TRADING" | "MULTI_ASSET" | "CUSTOM"
-  currency            String   @default("INR") // "INR" | "USDT"
+  category            String   // "CRYPTO" | "OPTIONS_TRADING" | "MULTI_ASSET" | "CUSTOM"
+  currency            String   @default("USD") // "USD" | "USDT"
   initialCapital      Decimal  @db.Decimal(30, 10)
   totalCapital        Decimal  @db.Decimal(30, 10)
   allocatedCapital    Decimal  @db.Decimal(30, 10) @default(0)
@@ -633,7 +633,7 @@ model ExpiryNotification {
 model Wallet {
   id                  String   @id @default(cuid())
   userId              String   @unique
-  currencyCode        String   @default("INR")
+  currencyCode        String   @default("USD")
   availableBalance    Decimal  @db.Decimal(30, 10) @default(0)
   reservedBalance     Decimal  @db.Decimal(30, 10) @default(0)
   totalDeposits       Decimal  @db.Decimal(30, 10) @default(0)
@@ -654,7 +654,7 @@ model WalletTransaction {
   walletId         String
   transactionType  String   // "DEPOSIT" | "WITHDRAWAL_REQUEST" | "TRADING_RESERVATION" | "TRADING_RELEASE" | "TRADING_SETTLEMENT" | "TRADING_FEE" | "REFUND" | "REVERSAL"
   amount           Decimal  @db.Decimal(30, 10)
-  currencyCode     String   @default("INR")
+  currencyCode     String   @default("USD")
   paymentMethod    String?  // "UPI" | "CARD" | "NET_BANKING" | "WALLET_INTERNAL" | "GATEWAY"
   gatewayReference String?
   referenceId      String?  // Gateway order id or trading order id
@@ -678,7 +678,7 @@ model PaymentOrder {
   gatewayPaymentId String?
   gatewaySignature String?
   amount           Decimal  @db.Decimal(30, 10)
-  currencyCode     String   @default("INR")
+  currencyCode     String   @default("USD")
   status           String   // "CREATED" | "PENDING" | "SUCCESSFUL" | "FAILED" | "EXPIRED"
   idempotencyKey   String   @unique
   metadata         String?  @db.Text
@@ -695,7 +695,7 @@ model PaymentOrder {
 model ExchangeBalance {
   id                 String   @id @default(cuid())
   brokerConnectionId String
-  asset              String   // "INR" | "USDT" | "BTC" | "ETH"
+  asset              String   // "USD" | "USDT" | "BTC" | "ETH"
   availableBalance   Decimal  @db.Decimal(30, 10) @default(0)
   reservedBalance    Decimal  @db.Decimal(30, 10) @default(0)
   totalBalance       Decimal  @db.Decimal(30, 10) @default(0)
@@ -715,7 +715,7 @@ model FinancialLedger {
   walletId       String?
   entryType      String   // "CREDIT" | "DEBIT" | "RESERVE" | "RELEASE" | "FEE_DEDUCTION" | "REVERSAL"
   amount         Decimal  @db.Decimal(30, 10)
-  currencyCode   String   @default("INR")
+  currencyCode   String   @default("USD")
   runningBalance Decimal  @db.Decimal(30, 10)
   referenceType  String   // "PAYMENT_GATEWAY" | "TRADING_ORDER" | "REFUND" | "ADMIN_RECONCILIATION"
   referenceId    String

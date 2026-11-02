@@ -44,19 +44,17 @@ export function handleUnknownError(err: unknown): NextResponse<ApiError> {
   return apiError(message, 500, 'INTERNAL_ERROR');
 }
 
-/** Format currency to INR or USDT string */
+/** Format currency in native quote unit (USD/USDT) */
 export function formatCurrency(
   value: number,
-  currency = 'INR',
+  currency = 'USD',
   decimals = 2
 ): string {
-  if (currency === 'INR') {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+  if (currency === 'USD' || currency === 'USDT') {
+    return '$' + value.toLocaleString('en-US', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
-    }).format(value);
+    });
   }
   return `${value.toFixed(decimals)} ${currency}`;
 }

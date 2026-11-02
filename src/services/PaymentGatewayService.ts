@@ -147,10 +147,19 @@ export class PaymentGatewayService {
     const gatewayName = this.getProviderName();
     const compliance = this.checkRazorpayApproval();
 
-    // If live Razorpay merchant is approved and live keys present, create order on Razorpay API
-    if (compliance.mode === 'LIVE_APPROVED' && !this.isSandbox) {
+    // Check if actual Razorpay credentials (test or live) are present
+    const activeKeyId = process.env.RAZORPAY_KEY_ID || this.keyId;
+    const activeKeySecret = process.env.RAZORPAY_KEY_SECRET || this.keySecret;
+    const hasRealCredentials =
+      Boolean(activeKeyId && activeKeySecret) &&
+      activeKeyId.startsWith('rzp_') &&
+      !activeKeyId.includes('TC_Sim') &&
+      !activeKeySecret.includes('sim_mock');
+
+    // If real Razorpay keys are configured and requested for gateway payment, create official order on Razorpay API
+    if (hasRealCredentials && params.notes?.paymentMethod !== 'SANDBOX') {
       try {
-        const authHeader = Buffer.from(`${this.keyId}:${this.keySecret}`).toString('base64');
+        const authHeader = Buffer.from(`${activeKeyId}:${activeKeySecret}`).toString('base64');
         const res = await fetch('https://api.razorpay.com/v1/orders', {
           method: 'POST',
           headers: {
@@ -169,16 +178,17 @@ export class PaymentGatewayService {
           }),
         });
 
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const errJson = await res.json().catch(() => ({}));
-          throw new Error(errJson.error?.description || 'Razorpay order creation failed.');
+          throw new Error(data.error?.description || `Razorpay order creation failed (status ${res.status}): ${JSON.stringify(data)}`);
         }
 
-        const data = await res.json();
-        gatewayOrderId = data.id;
+        if (data.id) {
+          gatewayOrderId = data.id;
+        }
       } catch (liveErr) {
-        // Safe graceful fallback to simulation if live API fails
-        console.warn('[PaymentGatewayService] Live Razorpay order API call notice:', liveErr);
+        console.error('[PaymentGatewayService] Razorpay order API call error:', liveErr);
+        throw liveErr;
       }
     }
 
@@ -243,12 +253,14 @@ export class PaymentGatewayService {
       throw new Error(`Order "${orderId}" not found.`);
     }
 
+    const key = process.env.RAZORPAY_KEY_ID || this.keyId;
+
     return {
-      key: this.keyId,
+      key,
       amount: order.amountInPaise,
       currency: 'INR',
       name: 'TrackingCrypt',
-      description: 'Bank-to-Wallet Deposit',
+      description: 'Trading Wallet Deposit',
       order_id: order.gatewayOrderId,
       prefill: {
         name: user?.name || 'Trader',
@@ -259,7 +271,7 @@ export class PaymentGatewayService {
         internalOrderId: order.orderId,
       },
       theme: {
-        color: '#06b6d4',
+        color: '#FFE600',
       },
     };
   }
@@ -295,9 +307,11 @@ export class PaymentGatewayService {
       };
     }
 
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || this.keySecret;
+
     // Expected HMAC-SHA256 signature
     const generatedExpectedSignature = crypto
-      .createHmac('sha256', this.keySecret)
+      .createHmac('sha256', keySecret)
       .update(`${order.gatewayOrderId}|${req.gatewayPaymentId}`)
       .digest('hex');
 

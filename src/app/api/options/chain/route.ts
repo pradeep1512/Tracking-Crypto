@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { optionsTradingService } from '@/services/OptionsTradingService';
-import { apiSuccess, apiError, handleUnknownError } from '@/lib/utils/api';
+import { apiSuccess, handleUnknownError } from '@/lib/utils/api';
 import { latencyService } from '@/services/LatencyOptimizationService';
 
 export async function GET(request: NextRequest) {
@@ -9,12 +9,12 @@ export async function GET(request: NextRequest) {
     const underlying = searchParams.get('underlying') ?? 'BTC';
     const expiry = searchParams.get('expiry') ?? undefined;
 
-    const chain = optionsTradingService.getOptionsChain(underlying, expiry);
+    const chain = await optionsTradingService.getOptionsChain(underlying, expiry);
     latencyService.measureMarketDataLatency(new Date(chain.timestamp), new Date());
 
     return apiSuccess({
       chain,
-      supportedUnderlyings: optionsTradingService.getSupportedUnderlyings(),
+      supportedUnderlyings: ['BTC', 'ETH'],
     });
   } catch (err) {
     return handleUnknownError(err);

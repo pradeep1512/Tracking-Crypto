@@ -12,14 +12,12 @@ export function formatNumber(
   return new Intl.NumberFormat('en-IN', options).format(value);
 }
 
-export function formatPrice(value: number, currency = 'INR'): string {
-  if (currency === 'INR') {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+export function formatPrice(value: number, currency = 'USD'): string {
+  if (currency === 'USD' || currency === 'USDT') {
+    return '$' + value.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(value);
+    });
   }
   return `${value.toFixed(2)} ${currency}`;
 }

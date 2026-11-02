@@ -24,7 +24,6 @@ import type {
   AssetCategory,
   OptionType,
 } from '@/types';
-import { mcxMarketService } from './MCXMarketService';
 import { optionsTradingService } from './OptionsTradingService';
 import { liveTradingService } from './LiveTradingService';
 import { prisma } from '@/lib/database/prisma';
@@ -383,7 +382,7 @@ export class PortfolioService {
     name: string;
     description?: string;
     category: PortfolioCategory;
-    currency?: 'INR' | 'USDT';
+    currency?: 'USD' | 'USDT' | 'INR';
     initialCapital: number;
     maxInvestmentLimit?: number;
     riskLimitPercentage?: number;
@@ -392,7 +391,7 @@ export class PortfolioService {
     connectedBrokerName?: string;
   }): UserPortfolio {
     const id = `port_${randomUUID().slice(0, 8)}`;
-    const currency = data.currency ?? (data.category === 'CRYPTO' ? 'USDT' : 'INR');
+    const currency = data.currency ?? 'USD';
     const capital = Number(data.initialCapital);
 
     const portfolio: UserPortfolio = {
@@ -630,12 +629,11 @@ export class PortfolioService {
     });
 
     // Step 5: Verify market session
-    const marketCheck = mcxMarketService.getMarketStatus();
     verificationLog.push({
       step: 5,
       description: 'Verify exchange trading session',
       status: 'PASSED',
-      message: portfolio.category === 'CRYPTO' ? 'Crypto 24/7 global market open' : `MCX Status: ${marketCheck.status} (${marketCheck.sessionName})`,
+      message: 'Delta Exchange 24/7 crypto and options market open',
     });
 
     // Step 6: Validate risk guardrails

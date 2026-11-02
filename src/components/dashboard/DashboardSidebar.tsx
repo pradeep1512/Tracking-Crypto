@@ -26,19 +26,15 @@ import {
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/wallet', label: 'Wallet & Payments', icon: Wallet },
-  { href: '/dashboard/exchanges', label: 'Exchange Accounts', icon: Landmark },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/crypto', label: 'Crypto Markets', icon: Coins },
-  { href: '/dashboard/mcx', label: 'MCX Commodities', icon: Flame },
-  { href: '/dashboard/options', label: 'Options Trading', icon: Layers },
+  { href: '/dashboard/options', label: 'Crypto Options', icon: Layers },
   { href: '/dashboard/portfolio', label: 'My Portfolio', icon: Briefcase },
   { href: '/dashboard/active-trading', label: 'Active Trading', icon: PlayCircle },
-  { href: '/dashboard/orders', label: 'Orders & Trade History', icon: ShoppingCart },
-  { href: '/dashboard/expiry-calendar', label: 'Expiry Calendar', icon: Calendar },
-  { href: '/dashboard/price-gap', label: 'Price Gap', icon: Activity },
-  { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/dashboard/orders', label: 'Orders / Trade History', icon: ShoppingCart },
+  { href: '/dashboard/markets', label: 'Watchlist', icon: Activity },
   { href: '/dashboard/alerts', label: 'Alerts', icon: Bell },
+  { href: '/dashboard/wallet', label: 'My Wallet', icon: Wallet },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -48,25 +44,27 @@ export function DashboardSidebar() {
   const isAdmin = (session?.user as { role?: string })?.role?.toUpperCase() === 'ADMIN';
 
   return (
-    <aside className="w-60 flex-shrink-0 flex flex-col border-r border-white/5 bg-card">
+    <aside className="w-60 flex-shrink-0 flex flex-col border-r border-yellow-500/10 bg-[#08080a]">
       {/* Logo */}
-      <div className="p-6 border-b border-white/5">
-        <Link href="/dashboard" className="flex items-center gap-3">
+      <div className="p-6 border-b border-yellow-500/10 relative overflow-hidden">
+        {/* Subtle cyber yellow corner accent */}
+        <div className="absolute top-0 right-0 w-16 h-1 bg-gradient-to-l from-yellow-400 to-transparent" />
+        <Link href="/dashboard" className="flex items-center gap-3 group">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md"
-            style={{ background: 'linear-gradient(135deg, hsl(199,89%,48%), hsl(221,83%,53%))' }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg transition-transform group-hover:scale-105"
+            style={{ background: 'linear-gradient(135deg, #FFE600 0%, #EAB308 100%)', boxShadow: '0 0 15px rgba(250, 204, 21, 0.4)' }}
           >
-            <Zap className="w-4 h-4 text-white" />
+            <Zap className="w-4 h-4 text-black fill-black" />
           </div>
-          <span className="text-lg font-bold">
-            <span className="gradient-text">Tracking</span>
-            <span className="text-white">Crypt</span>
+          <span className="text-lg font-black tracking-wider">
+            <span className="gradient-text uppercase">Tracking</span>
+            <span className="text-white uppercase ml-0.5">Crypt</span>
           </span>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive =
             item.href === '/dashboard'
@@ -80,16 +78,16 @@ export function DashboardSidebar() {
               href={item.href}
               id={`nav-${item.label.toLowerCase().replace(' ', '-')}`}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all',
                 isActive
-                  ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                  ? 'bg-yellow-400/15 text-yellow-400 border border-yellow-400/40 shadow-[0_0_15px_rgba(250,204,21,0.2)]'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5 hover:border-l-2 hover:border-yellow-400/50'
               )}
             >
-              <Icon className={cn('w-4 h-4', isActive ? 'text-cyan-400' : 'text-muted-foreground')} />
-              {item.label}
+              <Icon className={cn('w-4 h-4', isActive ? 'text-yellow-400' : 'text-zinc-400')} />
+              <span>{item.label}</span>
               {item.label === 'Alerts' && (
-                <span className="ml-auto w-2 h-2 rounded-full bg-red-400 pulse-dot" />
+                <span className="ml-auto w-2 h-2 rounded-full bg-yellow-400 pulse-dot shadow-[0_0_8px_#FFE600]" />
               )}
             </Link>
           );
@@ -97,18 +95,18 @@ export function DashboardSidebar() {
 
         {/* Admin portal nav if user is admin */}
         {isAdmin && (
-          <div className="pt-2 mt-2 border-t border-white/5">
+          <div className="pt-2 mt-2 border-t border-yellow-500/10">
             <Link
               href="/admin/dashboard"
               id="nav-admin-dashboard"
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all',
                 pathname.startsWith('/admin')
-                  ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
-                  : 'text-purple-400/80 hover:text-purple-300 hover:bg-purple-500/10'
+                  ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-[0_0_12px_rgba(234,179,8,0.25)]'
+                  : 'text-zinc-400 hover:text-yellow-300 hover:bg-yellow-500/10'
               )}
             >
-              <Shield className="w-4 h-4 text-purple-400" />
+              <Shield className="w-4 h-4 text-yellow-400" />
               <span>Admin Terminal</span>
             </Link>
           </div>
@@ -116,7 +114,7 @@ export function DashboardSidebar() {
       </nav>
 
       {/* Footer / Logout */}
-      <div className="p-4 pb-6 border-t border-white/5 space-y-2.5">
+      <div className="p-4 pb-6 border-t border-yellow-500/10 space-y-2.5">
         <button
           id="sidebar-signout-btn"
           onClick={() => signOut({ callbackUrl: '/signin?logout=true' })}
@@ -126,9 +124,9 @@ export function DashboardSidebar() {
           <span>Sign Out</span>
         </button>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-          <span className="w-2 h-2 rounded-full bg-amber-400 pulse-dot flex-shrink-0" />
-          <span className="text-amber-400 text-[11px] font-medium tracking-tight truncate">Dev Mode — Mock Data</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+          <span className="w-2 h-2 rounded-full bg-yellow-400 pulse-dot flex-shrink-0 shadow-[0_0_6px_#FFE600]" />
+          <span className="text-yellow-400 text-[11px] font-bold tracking-tight truncate">Dev Mode — Delta Exchange Feeds</span>
         </div>
       </div>
     </aside>

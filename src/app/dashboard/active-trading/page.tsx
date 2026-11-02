@@ -27,14 +27,14 @@ export default function ActiveTradingPage() {
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<string>('');
 
   // Form states
-  const [symbol, setSymbol] = useState('GOLD');
-  const [category, setCategory] = useState<AssetCategory>('MCX_COMMODITY');
+  const [symbol, setSymbol] = useState('BTCUSD');
+  const [category, setCategory] = useState<AssetCategory>('CRYPTO');
   const [side, setSide] = useState<Side>('BUY');
   const [orderType, setOrderType] = useState<OrderType>('MARKET');
   const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(78450);
-  const [stopLoss, setStopLoss] = useState(77900);
-  const [takeProfit, setTakeProfit] = useState(79500);
+  const [price, setPrice] = useState(78500);
+  const [stopLoss, setStopLoss] = useState(77000);
+  const [takeProfit, setTakeProfit] = useState(80000);
   const [isPaperTrade, setIsPaperTrade] = useState(true);
 
   const [loading, setLoading] = useState(false);
@@ -294,13 +294,12 @@ export default function ActiveTradingPage() {
                     onChange={(e) => {
                       const c = e.target.value as AssetCategory;
                       setCategory(c);
-                      setSymbol(c === 'CRYPTO' ? 'BTCUSDT' : c === 'MCX_COMMODITY' ? 'GOLD' : 'BTC-30OCT26-85000-CE');
+                      setSymbol(c === 'CRYPTO' ? 'BTCUSD' : 'C-BTC-80000-021126');
                     }}
                     className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-500"
                   >
-                    <option value="MCX_COMMODITY">MCX Commodity</option>
-                    <option value="CRYPTO">Spot Crypto</option>
-                    <option value="OPTION">Options Contract</option>
+                    <option value="CRYPTO">Spot & Perp Crypto</option>
+                    <option value="OPTION">Delta Options Contract</option>
                   </select>
                 </div>
 

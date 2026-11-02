@@ -31,46 +31,53 @@ async function main() {
     },
   });
 
-  const binanceExchange = await prisma.exchange.upsert({
-    where: { name: 'binance' },
-    update: {},
+  const deltaExchange = await prisma.exchange.upsert({
+    where: { name: 'delta' },
+    update: {
+      displayName: 'Delta Exchange India',
+      baseApiUrl: 'https://api.india.delta.exchange',
+      wsUrl: 'wss://socket.india.delta.exchange',
+      isEnabled: true,
+      isMock: false,
+    },
     create: {
-      name: 'binance',
-      displayName: 'Binance',
-      baseApiUrl: 'https://api.binance.com',
-      wsUrl: 'wss://stream.binance.com:9443',
-      isEnabled: false,
+      name: 'delta',
+      displayName: 'Delta Exchange India',
+      baseApiUrl: 'https://api.india.delta.exchange',
+      wsUrl: 'wss://socket.india.delta.exchange',
+      isEnabled: true,
       isMock: false,
     },
   });
 
-  console.log('✅ Exchanges verified:', mockExchange.name, binanceExchange.name);
+  console.log('✅ Exchanges verified:', mockExchange.name, deltaExchange.name);
 
   // ── Trading Pairs ────────────────────────────────────────────────────────────
   const pairs = [
-    { symbol: 'BTCINR', base: 'BTC', quote: 'INR' },
-    { symbol: 'ETHINR', base: 'ETH', quote: 'INR' },
-    { symbol: 'BNBINR', base: 'BNB', quote: 'INR' },
-    { symbol: 'USDTINR', base: 'USDT', quote: 'INR' },
-    { symbol: 'BTCUSDT', base: 'BTC', quote: 'USDT' },
-    { symbol: 'ETHUSDT', base: 'ETH', quote: 'USDT' },
+    { symbol: 'BTCUSD', base: 'BTC', quote: 'USD' },
+    { symbol: 'ETHUSD', base: 'ETH', quote: 'USD' },
+    { symbol: 'SOLUSD', base: 'SOL', quote: 'USD' },
+    { symbol: 'XRPUSD', base: 'XRP', quote: 'USD' },
+    { symbol: 'DOGEUSD', base: 'DOGE', quote: 'USD' },
   ];
 
   for (const pair of pairs) {
-    await prisma.tradingPair.upsert({
-      where: { exchangeId_symbol: { exchangeId: mockExchange.id, symbol: pair.symbol } },
-      update: {},
-      create: {
-        exchangeId: mockExchange.id,
-        symbol: pair.symbol,
-        baseCurrency: pair.base,
-        quoteCurrency: pair.quote,
-        isEnabled: true,
-      },
-    });
+    for (const ex of [mockExchange, deltaExchange]) {
+      await prisma.tradingPair.upsert({
+        where: { exchangeId_symbol: { exchangeId: ex.id, symbol: pair.symbol } },
+        update: {},
+        create: {
+          exchangeId: ex.id,
+          symbol: pair.symbol,
+          baseCurrency: pair.base,
+          quoteCurrency: pair.quote,
+          isEnabled: true,
+        },
+      });
+    }
   }
 
-  console.log(`✅ ${pairs.length} trading pairs verified`);
+  console.log(`✅ ${pairs.length} trading pairs verified for each exchange`);
 
   // ── Initial Administrator Account ──────────────────────────────────────────
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@trackingcrypt.com').toLowerCase().trim();
@@ -91,7 +98,7 @@ async function main() {
       isActive: true,
       userSettings: {
         create: {
-          preferredCurrency: 'INR',
+          preferredCurrency: 'USD',
           enablePaperTrading: true,
           enablePriceAlerts: true,
           maximumAllowedGapPct: 2.0,
@@ -121,7 +128,7 @@ async function main() {
       isActive: true,
       userSettings: {
         create: {
-          preferredCurrency: 'INR',
+          preferredCurrency: 'USD',
           enablePaperTrading: true,
           enablePriceAlerts: true,
           maximumAllowedGapPct: 2.0,
@@ -151,7 +158,7 @@ async function main() {
       isActive: true,
       userSettings: {
         create: {
-          preferredCurrency: 'INR',
+          preferredCurrency: 'USD',
           enablePaperTrading: true,
           enablePriceAlerts: true,
           maximumAllowedGapPct: 2.0,

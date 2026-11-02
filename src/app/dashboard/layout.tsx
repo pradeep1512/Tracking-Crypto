@@ -23,10 +23,14 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-[#070709] cyber-grunge-bg overflow-hidden relative selection:bg-yellow-400 selection:text-black">
+      {/* Ambient Cyber Grunge Yellow Accent Glows matching reference art */}
+      <div className="absolute top-0 right-0 w-[500px] h-[350px] bg-yellow-400/5 blur-[120px] pointer-events-none -z-0" />
+      <div className="absolute bottom-0 left-60 w-[400px] h-[300px] bg-amber-500/5 blur-[100px] pointer-events-none -z-0" />
+
       <SessionWatcher />
       <DashboardSidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         <DashboardHeader />
         <main className="flex-1 overflow-y-auto p-6">
           {children}

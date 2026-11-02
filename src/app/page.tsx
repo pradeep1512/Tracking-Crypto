@@ -64,16 +64,16 @@ export default function LandingPage() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground text-sm">Seller&apos;s quoted price</span>
-              <span className="text-white font-mono font-semibold">₹101.00</span>
+              <span className="text-white font-mono font-semibold">$101.00</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground text-sm">Market ask price</span>
-              <span className="text-white font-mono font-semibold">₹103.00</span>
+              <span className="text-white font-mono font-semibold">$103.00</span>
             </div>
             <div className="h-px bg-white/5" />
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground text-sm">Price gap</span>
-              <span className="text-red-400 font-mono font-bold">+₹2.00 (+1.98%)</span>
+              <span className="text-red-400 font-mono font-bold">+$2.00 (+1.98%)</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground text-sm">Gap cause</span>
@@ -104,7 +104,7 @@ export default function LandingPage() {
           <span className="gradient-text">Precision Trading</span>
         </h2>
         <p className="text-muted-foreground text-center mb-12 max-w-xl mx-auto">
-          Every millisecond and every paisa counts. TrackingCrypt gives you the tools to understand exactly what&apos;s happening.
+          Every millisecond and every tick counts. TrackingCrypt gives you the tools to understand exactly what&apos;s happening.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
